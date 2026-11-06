@@ -1,34 +1,30 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { AgentCursor } from './AgentCursor';
-import { SkipIntro } from './SkipIntro';
-import { ConstructionOverlay } from './ConstructionOverlay';
+import { ConstructionTelemetry } from './ConstructionTelemetry';
 import { AGENT_REGISTRY } from '../../data/agents';
-import { CONSTRUCTION_PHASES, PhaseInfo } from '../../animations/constructionConfig';
-import { ConstructionTimelineManager } from '../../animations/constructionTimeline';
+import { SECTION_TIMELINES, SectionTimelineConfig } from '../../animations/construction/ConstructionConfig';
+import { ConstructionEngine } from '../../animations/construction/ConstructionEngine';
 import { CursorDisplayState } from './AgentCursorLayer';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useDeviceType } from '../../hooks/useMediaQuery';
 
 interface IntroExperienceProps {
   onComplete: () => void;
-  onStepChange?: (stepIndex: number) => void;
 }
 
-export const IntroExperience: React.FC<IntroExperienceProps> = ({
-  onComplete,
-  onStepChange,
-}) => {
+export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) => {
   const prefersReduced = useReducedMotion();
   const { isMobile } = useDeviceType();
 
-  const [currentPhase, setCurrentPhase] = useState<PhaseInfo>(CONSTRUCTION_PHASES[0]);
+  const [currentSection, setCurrentSection] = useState<SectionTimelineConfig>(SECTION_TIMELINES[0]);
   const [progress, setProgress] = useState(0);
+  const [speed, setSpeed] = useState(1);
   const [cursors, setCursors] = useState<CursorDisplayState[]>([]);
   const [isDone, setIsDone] = useState(false);
 
-  const managerRef = useRef<ConstructionTimelineManager | null>(null);
+  const engineRef = useRef<ConstructionEngine | null>(null);
 
-  // Active agents pool (curated on mobile, full 20 on desktop)
+  // Curated agents on mobile for 60 FPS, full 20 on desktop/tablet
   const activeAgents = useRef(
     isMobile
       ? AGENT_REGISTRY.filter((_, idx) => [0, 1, 2, 3, 7, 8, 19].includes(idx))
@@ -36,13 +32,20 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({
   ).current;
 
   const handleSkip = useCallback(() => {
-    if (managerRef.current) {
-      managerRef.current.skip();
+    if (engineRef.current) {
+      engineRef.current.skip();
     }
     setIsDone(true);
-    onStepChange?.(10);
     onComplete();
-  }, [onComplete, onStepChange]);
+  }, [onComplete]);
+
+  const handleToggleSpeed = useCallback(() => {
+    if (engineRef.current) {
+      const nextSpeed = speed === 1 ? 2 : 1;
+      engineRef.current.setSpeed(nextSpeed);
+      setSpeed(nextSpeed);
+    }
+  }, [speed]);
 
   useEffect(() => {
     if (prefersReduced) {
@@ -50,12 +53,11 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({
       return;
     }
 
-    const manager = new ConstructionTimelineManager(activeAgents, {
-      onPhaseChange: (phase) => {
-        setCurrentPhase(phase);
-        onStepChange?.(phase.phase);
+    const engine = new ConstructionEngine(activeAgents, {
+      onSectionChange: (sec) => {
+        setCurrentSection(sec);
       },
-      onProgress: (pct) => {
+      onOverallProgress: (pct) => {
         setProgress(pct);
       },
       onCursorsUpdate: (updatedCursors) => {
@@ -63,36 +65,45 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({
       },
       onComplete: () => {
         setIsDone(true);
-        onStepChange?.(10);
         onComplete();
       },
     });
 
-    managerRef.current = manager;
-    manager.start();
+    engineRef.current = engine;
+    engine.init();
+    engine.play();
+
+    // Support keyboard shortcuts (ESC or Space to skip, F to fast-forward)
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.code === 'Space') {
+        handleSkip();
+      } else if (e.key === 'f' || e.key === 'F') {
+        handleToggleSpeed();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      manager.destroy();
+      window.removeEventListener('keydown', handleKeyDown);
+      engine.destroy();
     };
-  }, [activeAgents, onComplete, onStepChange, prefersReduced, handleSkip]);
+  }, [activeAgents, onComplete, prefersReduced, handleSkip, handleToggleSpeed]);
 
   if (isDone) return null;
 
   return (
-    <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
-      {/* Interactive Skip Button */}
-      <div className="pointer-events-auto">
-        <SkipIntro onSkip={handleSkip} />
-      </div>
-
-      {/* Blueprint Construction Overlay & HUD */}
-      <ConstructionOverlay
-        phase={currentPhase}
+    <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden select-none">
+      {/* HUD Telemetry and Speed/Skip Controls */}
+      <ConstructionTelemetry
+        currentSection={currentSection}
         progress={progress}
         activeAgentsCount={activeAgents.length}
+        speed={speed}
+        onToggleSpeed={handleToggleSpeed}
+        onSkip={handleSkip}
       />
 
-      {/* Physical Synchronized Agent Cursors positioned by getBoundingClientRect */}
+      {/* Synchronized Physical Agent Cursors */}
       {cursors.map((c) => (
         <AgentCursor
           key={c.agent.id}
