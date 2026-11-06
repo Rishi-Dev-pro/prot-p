@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { AgentCursor } from './AgentCursor';
+import { AgentCursorLayer } from './AgentCursorLayer';
+import { ConstructionOverlay } from './ConstructionOverlay';
 import { ConstructionTelemetry } from './ConstructionTelemetry';
 import { AGENT_REGISTRY } from '../../data/agents';
 import { SECTION_TIMELINES, SectionTimelineConfig } from '../../animations/construction/ConstructionConfig';
 import { ConstructionEngine } from '../../animations/construction/ConstructionEngine';
-import { CursorDisplayState } from './AgentCursorLayer';
+import { FreestyleAgentState } from '../../animations/construction/FreestyleAgentEngine';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useDeviceType } from '../../hooks/useMediaQuery';
 
@@ -19,7 +20,7 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
   const [currentSection, setCurrentSection] = useState<SectionTimelineConfig>(SECTION_TIMELINES[0]);
   const [progress, setProgress] = useState(0);
   const [speed, setSpeed] = useState(1);
-  const [cursors, setCursors] = useState<CursorDisplayState[]>([]);
+  const [agents, setAgents] = useState<FreestyleAgentState[]>([]);
   const [isDone, setIsDone] = useState(false);
 
   const engineRef = useRef<ConstructionEngine | null>(null);
@@ -60,8 +61,8 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
       onOverallProgress: (pct) => {
         setProgress(pct);
       },
-      onCursorsUpdate: (updatedCursors) => {
-        setCursors(updatedCursors);
+      onAgentsUpdate: (updatedAgents) => {
+        setAgents(updatedAgents);
       },
       onComplete: () => {
         setIsDone(true);
@@ -73,7 +74,7 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
     engine.init();
     engine.play();
 
-    // Support keyboard shortcuts (ESC or Space to skip, F to fast-forward)
+    // Keyboard shortcuts: ESC/Space to skip, F to fast-forward
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' || e.code === 'Space') {
         handleSkip();
@@ -93,7 +94,14 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
 
   return (
     <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden select-none">
-      {/* HUD Telemetry and Speed/Skip Controls */}
+      {/* Design Workspace Blueprint Overlay */}
+      <ConstructionOverlay
+        currentSection={currentSection}
+        progress={progress}
+        activeAgentsCount={activeAgents.length}
+      />
+
+      {/* Floating HUD Telemetry and Speed/Skip Controls */}
       <ConstructionTelemetry
         currentSection={currentSection}
         progress={progress}
@@ -103,18 +111,8 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
         onSkip={handleSkip}
       />
 
-      {/* Synchronized Physical Agent Cursors */}
-      {cursors.map((c) => (
-        <AgentCursor
-          key={c.agent.id}
-          agent={c.agent}
-          x={c.x}
-          y={c.y}
-          xUnit="px"
-          activity={c.activity}
-          isClicking={c.isClicking}
-        />
-      ))}
+      {/* Freestyle 20-Agent Cursor Layer with Organic Bézier Movement */}
+      <AgentCursorLayer agents={agents} visible={!isDone} />
     </div>
   );
 };

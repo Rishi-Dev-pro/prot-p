@@ -85,3 +85,4 @@ export const ConstructionTelemetry: React.FC<ConstructionTelemetryProps> = ({
     </div>
   );
 };
+

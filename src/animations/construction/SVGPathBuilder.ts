@@ -81,3 +81,4 @@ export function buildArchitectureSVG(options: SVGPathBuilderOptions): gsap.core.
 
   return tl;
 }
+

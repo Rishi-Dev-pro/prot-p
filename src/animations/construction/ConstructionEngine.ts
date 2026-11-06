@@ -1,14 +1,14 @@
 import { gsap } from 'gsap';
 import { SECTION_TIMELINES, TOTAL_CONSTRUCTION_DURATION_MS, SectionTimelineConfig } from './ConstructionConfig';
-import { SCHEDULED_CONSTRUCTION_TASKS, ScheduledTask } from './ConstructionScheduler';
+import { SCHEDULED_CONSTRUCTION_TASKS } from './ConstructionScheduler';
 import { ConstructionStrategies } from './ConstructionStrategies';
 import { AgentCursorData } from '../../types/agent';
-import { CursorDisplayState } from '../../components/intro/AgentCursorLayer';
+import { FreestyleAgentEngine, FreestyleAgentState } from './FreestyleAgentEngine';
 
 export interface ConstructionEngineCallbacks {
   onSectionChange: (section: SectionTimelineConfig) => void;
   onOverallProgress: (progressPct: number) => void;
-  onCursorsUpdate: (cursors: CursorDisplayState[]) => void;
+  onAgentsUpdate: (agents: FreestyleAgentState[]) => void;
   onComplete: () => void;
 }
 
@@ -16,7 +16,7 @@ export class ConstructionEngine {
   private masterTimeline: gsap.core.Timeline;
   private agents: AgentCursorData[];
   private callbacks: ConstructionEngineCallbacks;
-  private cursorsMap: Map<string, CursorDisplayState> = new Map();
+  private freestyleEngine: FreestyleAgentEngine;
   private isDestroyed = false;
   private isCompleted = false;
   private currentSpeed = 1;
@@ -24,6 +24,12 @@ export class ConstructionEngine {
   constructor(agents: AgentCursorData[], callbacks: ConstructionEngineCallbacks) {
     this.agents = agents;
     this.callbacks = callbacks;
+
+    // Instantiate freestyle physics engine for organic curved motion
+    this.freestyleEngine = new FreestyleAgentEngine(this.agents, (agentStates) => {
+      this.callbacks.onAgentsUpdate(agentStates);
+    });
+
     this.masterTimeline = gsap.timeline({
       paused: true,
       onUpdate: () => {
@@ -33,19 +39,6 @@ export class ConstructionEngine {
       onComplete: () => {
         this.finalize();
       },
-    });
-
-    // Initialize agent cursors at starting positions
-    this.agents.forEach((agent) => {
-      const initX = (agent.initialPos.x / 100) * (typeof window !== 'undefined' ? window.innerWidth : 1200);
-      const initY = (agent.initialPos.y / 100) * (typeof window !== 'undefined' ? window.innerHeight : 800);
-      this.cursorsMap.set(agent.id, {
-        agent,
-        x: initX,
-        y: initY,
-        activity: agent.activity,
-        isClicking: false,
-      });
     });
   }
 
@@ -61,8 +54,8 @@ export class ConstructionEngine {
       el.setAttribute('data-build-status', 'unbuilt');
     });
 
-    this.emitCursors();
     this.buildMasterSequence();
+    this.freestyleEngine.start();
   }
 
   private buildMasterSequence(): void {
@@ -94,28 +87,26 @@ export class ConstructionEngine {
       const startTimeSec = task.startMs / 1000;
       const durationSec = task.durationMs / 1000;
 
-      // Stage A: Agent navigates to target DOM bounding box and engages wireframe
+      // Stage A: Assign agent to navigate with curved trajectory towards target
       this.masterTimeline.add(() => {
         if (this.isDestroyed || this.isCompleted) return;
 
+        this.freestyleEngine.assignTask({
+          agentId: task.agentId,
+          targetSelector: task.targetSelector,
+          actionText: task.taskLabel,
+          startMs: task.startMs,
+          durationMs: task.durationMs,
+          offsetPct: task.offsetPct,
+        });
+
         const targetEl = document.querySelector<HTMLElement>(task.targetSelector);
         if (targetEl) {
-          const rect = targetEl.getBoundingClientRect();
-          const targetX = rect.left + rect.width * (task.offsetPct?.x ?? 0.5);
-          const targetY = rect.top + rect.height * (task.offsetPct?.y ?? 0.5);
-
-          this.updateCursor(task.agentId, {
-            x: targetX,
-            y: targetY,
-            activity: task.taskLabel,
-            isClicking: true,
-          });
-
           targetEl.setAttribute('data-build-status', 'wireframe');
         }
       }, startTimeSec);
 
-      // Stage B: Run specific construction strategy timeline
+      // Stage B: Run physical construction strategy timeline
       this.masterTimeline.add(() => {
         if (this.isDestroyed || this.isCompleted) return;
 
@@ -128,69 +119,43 @@ export class ConstructionEngine {
             case 'typography':
               ConstructionStrategies.typography({
                 containerSelector: task.targetSelector,
-                onProgress: (p, action) => {
-                  this.updateCursor(task.agentId, {
-                    activity: `${action} [${p}%]`,
-                  });
-                },
               });
               break;
             case 'container':
               ConstructionStrategies.container({
                 selector: task.targetSelector,
-                onProgress: (p, action) => {
-                  this.updateCursor(task.agentId, {
-                    activity: `${action} [${p}%]`,
-                  });
-                },
               });
               break;
             case 'button':
               ConstructionStrategies.button({
                 selector: task.targetSelector,
-                onProgress: (p, action) => {
-                  this.updateCursor(task.agentId, {
-                    activity: `${action} [${p}%]`,
-                  });
-                },
               });
               break;
             case 'card':
               ConstructionStrategies.card({
                 cardSelector: task.targetSelector,
-                onProgress: (p, action) => {
-                  this.updateCursor(task.agentId, {
-                    activity: `${action} [${p}%]`,
-                  });
-                },
               });
               break;
             case 'architecture':
               ConstructionStrategies.architecture({
                 svgContainerSelector: task.targetSelector,
-                onProgress: (p, action) => {
-                  this.updateCursor(task.agentId, {
-                    activity: `${action} [${p}%]`,
-                  });
-                },
               });
               break;
           }
         }
       }, startTimeSec + 0.15);
 
-      // Stage C: Solidify into assembled component
+      // Stage C: Solidify into assembled component and release agent back into freestyle roaming
       this.masterTimeline.add(() => {
         if (this.isDestroyed || this.isCompleted) return;
 
         const targetEl = document.querySelector<HTMLElement>(task.targetSelector);
         if (targetEl) {
           targetEl.setAttribute('data-build-status', 'assembled');
-          this.updateCursor(task.agentId, {
-            isClicking: false,
-            activity: 'COMPONENT_COMPILED',
-          });
         }
+
+        // Release agent to freely roam or seek next target
+        this.freestyleEngine.completeTask(task.agentId);
       }, startTimeSec + durationSec);
     });
 
@@ -209,6 +174,7 @@ export class ConstructionEngine {
   public setSpeed(multiplier: number): void {
     this.currentSpeed = multiplier;
     this.masterTimeline.timeScale(multiplier);
+    this.freestyleEngine.setSpeed(multiplier);
   }
 
   public getSpeed(): number {
@@ -224,6 +190,7 @@ export class ConstructionEngine {
     this.isCompleted = true;
 
     this.masterTimeline.pause();
+    this.freestyleEngine.stop();
 
     if (typeof document !== 'undefined') {
       document.body.classList.remove('construction-active');
@@ -244,6 +211,7 @@ export class ConstructionEngine {
   public destroy(): void {
     this.isDestroyed = true;
     this.masterTimeline.kill();
+    this.freestyleEngine.stop();
 
     if (typeof document !== 'undefined') {
       document.body.classList.remove('construction-active');
@@ -253,20 +221,5 @@ export class ConstructionEngine {
         gsap.set(el, { clearProps: 'all' });
       });
     }
-  }
-
-  private updateCursor(agentId: string, updates: Partial<CursorDisplayState>): void {
-    const current = this.cursorsMap.get(agentId);
-    if (!current) return;
-
-    this.cursorsMap.set(agentId, {
-      ...current,
-      ...updates,
-    });
-    this.emitCursors();
-  }
-
-  private emitCursors(): void {
-    this.callbacks.onCursorsUpdate(Array.from(this.cursorsMap.values()));
   }
 }

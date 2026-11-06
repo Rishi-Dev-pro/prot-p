@@ -11,3 +11,4 @@ export const ConstructionStrategies = {
   card: (options: CardBuilderOptions) => buildCard(options),
   architecture: (options: SVGPathBuilderOptions) => buildArchitectureSVG(options),
 };
+

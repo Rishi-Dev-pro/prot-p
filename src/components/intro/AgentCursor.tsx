@@ -1,99 +1,125 @@
 import React from 'react';
-import { AgentCursorData } from '../../types/agent';
 
-interface AgentCursorProps {
-  agent: AgentCursorData;
+export interface AgentCursorViewProps {
+  id: string;
+  name: string;
+  color: string;
   x: number;
   y: number;
-  xUnit?: 'px' | '%';
+  angle: number;
+  isWorking: boolean;
   activity: string;
-  isClicking?: boolean;
+  trail?: { x: number; y: number }[];
 }
 
-export const AgentCursor: React.FC<AgentCursorProps> = ({
-  agent,
+export const AgentCursor: React.FC<AgentCursorViewProps> = ({
+  id,
+  name,
+  color,
   x,
   y,
-  xUnit = '%',
+  angle,
+  isWorking,
   activity,
-  isClicking = false,
+  trail = [],
 }) => {
-  const coordStyle =
-    xUnit === 'px'
-      ? { left: `${Math.round(x)}px`, top: `${Math.round(y)}px` }
-      : { left: `${x}%`, top: `${y}%` };
-
   return (
     <div
-      className="fixed pointer-events-none transition-all duration-500 ease-out z-50 select-none will-change-transform"
+      className="fixed pointer-events-none z-50 select-none will-change-transform transition-opacity duration-300"
       style={{
-        ...coordStyle,
-        transform: 'translate(-2px, -2px)',
+        left: `${Math.round(x)}px`,
+        top: `${Math.round(y)}px`,
+        transform: 'translate(-3px, -3px)',
       }}
     >
-      {/* Click ripple & laser spark flare when actively drawing/constructing */}
-      {isClicking && (
+      {/* Delicate trailing motion particles */}
+      {trail.map((pos, idx) => (
+        <span
+          key={idx}
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            left: `${pos.x - x}px`,
+            top: `${pos.y - y}px`,
+            width: `${Math.max(2, 4 - idx)}px`,
+            height: `${Math.max(2, 4 - idx)}px`,
+            backgroundColor: color,
+            opacity: 0.35 - idx * 0.1,
+            boxShadow: `0 0 6px ${color}`,
+            transform: 'translate(-50%, -50%)',
+          }}
+        />
+      ))}
+
+      {/* Working energy flare & ripple when actively constructing */}
+      {isWorking && (
         <>
           <span
-            className="absolute -top-3 -left-3 w-8 h-8 rounded-full border animate-ping pointer-events-none"
-            style={{ borderColor: agent.color }}
+            className="absolute -top-3 -left-3 w-8 h-8 rounded-full border animate-ping pointer-events-none opacity-75"
+            style={{ borderColor: color }}
           />
           <span
-            className="absolute -top-1 -left-1 w-3 h-3 rounded-full blur-[2px] animate-pulse pointer-events-none"
-            style={{ backgroundColor: agent.color }}
+            className="absolute -top-1 -left-1 w-3.5 h-3.5 rounded-full blur-[2px] animate-pulse pointer-events-none"
+            style={{ backgroundColor: color }}
           />
         </>
       )}
 
-      {/* SVG Cursor Pointer Arrow */}
+      {/* Minimalist, Sleek Pointer Arrow with directional rotation */}
       <svg
-        width="22"
-        height="22"
+        width="18"
+        height="18"
         viewBox="0 0 24 24"
         fill="none"
-        className="drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]"
+        className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] transition-transform duration-75"
+        style={{
+          transform: `rotate(${Math.round(angle - 45)}deg)`,
+          transformOrigin: '3px 3px',
+        }}
       >
         <path
-          d="M3 3L10.07 20.97L13.58 13.58L20.97 10.07L3 3Z"
-          fill={agent.color}
+          d="M3 3L10.5 21L13.8 13.8L21 10.5L3 3Z"
+          fill={color}
           stroke="#08090D"
           strokeWidth="1.5"
           strokeLinejoin="round"
         />
       </svg>
 
-      {/* Agent Identity & Live Telemetry Pill */}
-      <div
-        className="ml-4 -mt-2 px-2.5 py-1 rounded border backdrop-blur-md flex flex-col gap-0.5 shadow-2xl min-w-[130px] max-w-[200px]"
-        style={{
-          backgroundColor: '#08090Deb',
-          borderColor: `${agent.color}80`,
-          boxShadow: `0 4px 20px rgba(0,0,0,0.8), 0 0 10px ${agent.color}25`,
-        }}
-      >
-        <div className="flex items-center justify-between gap-1.5">
-          <span
-            className="font-mono text-[9px] font-bold tracking-tight"
-            style={{ color: agent.color }}
-          >
-            {agent.id}
-          </span>
-          <span className="font-mono text-[8px] text-white/50 truncate">
-            {agent.name}
-          </span>
-        </div>
-
-        {/* Dynamic Activity Telemetry */}
-        <div className="flex items-center gap-1.5 pt-0.5 border-t border-white/10">
-          <span
-            className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0"
-            style={{ backgroundColor: agent.color }}
-          />
-          <span className="font-mono text-[8px] text-white/90 tracking-tighter truncate font-medium">
-            {activity || agent.activity}
-          </span>
-        </div>
+      {/* Tiny Floating Agent Identity Tag */}
+      <div className="absolute left-4 top-0 flex items-center gap-1.5 pointer-events-none">
+        <span
+          className="w-1.5 h-1.5 rounded-full shrink-0 shadow-[0_0_8px_currentColor]"
+          style={{ backgroundColor: color, color }}
+        />
+        <span
+          className="font-mono text-[9px] font-bold tracking-tight text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]"
+          style={{ color }}
+        >
+          {id}
+        </span>
       </div>
+
+      {/* Temporary Activity Badge (Renders ONLY when actively working on a component, fades out otherwise) */}
+      {isWorking && activity && (
+        <div
+          className="absolute left-4 top-4 px-2 py-0.5 rounded border backdrop-blur-md whitespace-nowrap shadow-xl animate-in fade-in zoom-in-95 duration-200"
+          style={{
+            backgroundColor: 'rgba(8, 9, 13, 0.92)',
+            borderColor: `${color}80`,
+            boxShadow: `0 4px 15px rgba(0,0,0,0.8), 0 0 10px ${color}30`,
+          }}
+        >
+          <div className="flex items-center gap-1.5">
+            <span
+              className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0"
+              style={{ backgroundColor: color }}
+            />
+            <span className="font-mono text-[8px] tracking-wider text-white/90 font-medium uppercase">
+              {activity}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

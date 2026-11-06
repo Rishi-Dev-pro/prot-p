@@ -119,3 +119,4 @@ export const SECTION_TIMELINES: SectionTimelineConfig[] = [
     description: 'Releasing construction guides, returning camera to top, unlocking interaction',
   },
 ];
+

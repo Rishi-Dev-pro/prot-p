@@ -90,20 +90,18 @@ export const ArchitectureGraph: React.FC<ArchitectureGraphProps> = ({
                 className="transition-all duration-300"
               />
 
-              {/* Animated pulse packet when selected */}
-              {isSelected && (
-                <circle
-                  r="4"
-                  fill={domain.accentColor}
-                  filter="url(#glow)"
-                >
-                  <animateMotion
-                    path={`M ${centerX} ${centerY} L ${x} ${y}`}
-                    dur="1.5s"
-                    repeatCount="indefinite"
-                  />
-                </circle>
-              )}
+              {/* Continuous animated photon stream along every connector path */}
+              <circle
+                r={isSelected ? '4' : '2.5'}
+                fill={isSelected ? domain.accentColor : 'rgba(255, 255, 255, 0.6)'}
+                filter="url(#glow)"
+              >
+                <animateMotion
+                  path={`M ${centerX} ${centerY} L ${x} ${y}`}
+                  dur={`${1.8 + (i % 3) * 0.4}s`}
+                  repeatCount="indefinite"
+                />
+              </circle>
             </g>
           );
         })}

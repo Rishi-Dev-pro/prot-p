@@ -2,6 +2,7 @@ import React from 'react';
 import { FlagshipProject } from '../../types/project';
 import { Button } from '../common/Button';
 import { ArrowUpRight, Check, Activity, Terminal } from 'lucide-react';
+import { ProjectSchematic } from './ProjectSchematic';
 
 interface ProjectCardProps {
   project: FlagshipProject;
@@ -60,9 +61,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
 
         {/* Concept description */}
-        <p className="font-sans text-sm sm:text-base text-[#92939F] leading-relaxed mb-6">
+        <p className="font-sans text-sm sm:text-base text-[#92939F] leading-relaxed mb-5">
           {project.concept}
         </p>
+
+        {/* Bespoke Interactive Project Architectural Schematic */}
+        <div className="mb-6">
+          <ProjectSchematic projectId={project.id} accentColor={project.accentColor} />
+        </div>
 
         {/* Key Engineering Areas */}
         <div className="space-y-2 mb-6 bg-black/30 p-4 rounded-xl border border-white/5">

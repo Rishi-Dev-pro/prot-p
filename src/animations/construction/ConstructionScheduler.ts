@@ -302,3 +302,4 @@ export const SCHEDULED_CONSTRUCTION_TASKS: ScheduledTask[] = [
     offsetPct: { x: 0.5, y: 0.5 },
   },
 ];
+

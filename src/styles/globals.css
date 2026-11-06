@@ -194,3 +194,22 @@ body.construction-active [data-build-status="assembled"],
   box-shadow: none;
   clip-path: none !important;
 }
+
+
+@keyframes laser-sweep {
+  0% {
+    top: 0%;
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    top: 100%;
+    opacity: 0.15;
+  }
+}
+
+.animate-laser-scan {
+  animation: laser-sweep 5s ease-in-out infinite alternate;
+}

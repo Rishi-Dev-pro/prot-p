@@ -76,3 +76,4 @@ export function buildTypography(options: TypographyBuilderOptions): gsap.core.Ti
 
   return tl;
 }
+
