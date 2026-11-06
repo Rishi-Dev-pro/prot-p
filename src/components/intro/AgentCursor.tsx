@@ -21,97 +21,107 @@ export const AgentCursor: React.FC<AgentCursorViewProps> = ({
   angle,
   isWorking,
   activity,
-  trail = [],
 }) => {
   return (
     <div
-      className="fixed pointer-events-none z-50 select-none will-change-transform transition-opacity duration-300"
+      className="fixed pointer-events-none z-50 select-none will-change-transform"
       style={{
-        left: `${Math.round(x)}px`,
-        top: `${Math.round(y)}px`,
-        transform: 'translate(-3px, -3px)',
+        left: 0,
+        top: 0,
+        transform: `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0)`,
       }}
     >
-      {/* Delicate trailing motion particles */}
-      {trail.map((pos, idx) => (
-        <span
-          key={idx}
-          className="absolute rounded-full pointer-events-none"
-          style={{
-            left: `${pos.x - x}px`,
-            top: `${pos.y - y}px`,
-            width: `${Math.max(2, 4 - idx)}px`,
-            height: `${Math.max(2, 4 - idx)}px`,
-            backgroundColor: color,
-            opacity: 0.35 - idx * 0.1,
-            boxShadow: `0 0 6px ${color}`,
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-      ))}
-
-      {/* Working energy flare & ripple when actively constructing */}
+      {/* Precision Calibration Reticle when actively working / constructing */}
       {isWorking && (
-        <>
+        <div
+          className="absolute -top-2.5 -left-2.5 w-5 h-5 pointer-events-none flex items-center justify-center"
+          style={{ color }}
+        >
+          {/* Thin circular alignment ring */}
           <span
-            className="absolute -top-3 -left-3 w-8 h-8 rounded-full border animate-ping pointer-events-none opacity-75"
+            className="absolute inset-0 rounded-full border border-current opacity-60"
             style={{ borderColor: color }}
           />
+          {/* Center reticle dot */}
           <span
-            className="absolute -top-1 -left-1 w-3.5 h-3.5 rounded-full blur-[2px] animate-pulse pointer-events-none"
+            className="w-1 h-1 rounded-full"
             style={{ backgroundColor: color }}
           />
-        </>
+          {/* Subtle crosshair ticks */}
+          <span
+            className="absolute -top-1 w-[1px] h-1 bg-current opacity-70"
+            style={{ backgroundColor: color }}
+          />
+          <span
+            className="absolute -bottom-1 w-[1px] h-1 bg-current opacity-70"
+            style={{ backgroundColor: color }}
+          />
+          <span
+            className="absolute -left-1 w-1 h-[1px] bg-current opacity-70"
+            style={{ backgroundColor: color }}
+          />
+          <span
+            className="absolute -right-1 w-1 h-[1px] bg-current opacity-70"
+            style={{ backgroundColor: color }}
+          />
+        </div>
       )}
 
-      {/* Minimalist, Sleek Pointer Arrow with directional rotation */}
+      {/* Sleek Razor-Sharp Precision Pointer Arrow */}
       <svg
         width="18"
         height="18"
         viewBox="0 0 24 24"
         fill="none"
-        className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] transition-transform duration-75"
+        className="pointer-events-none"
         style={{
           transform: `rotate(${Math.round(angle - 45)}deg)`,
-          transformOrigin: '3px 3px',
+          transformOrigin: '2px 2px',
+          filter: `drop-shadow(0 1px 3px rgba(0,0,0,0.95)) drop-shadow(0 0 2px ${color}60)`,
         }}
       >
         <path
           d="M3 3L10.5 21L13.8 13.8L21 10.5L3 3Z"
           fill={color}
-          stroke="#08090D"
+          stroke="#090A0F"
           strokeWidth="1.5"
           strokeLinejoin="round"
         />
       </svg>
 
-      {/* Tiny Floating Agent Identity Tag */}
-      <div className="absolute left-4 top-0 flex items-center gap-1.5 pointer-events-none">
+      {/* Stable Floating Agent Identity Tag */}
+      <div className="absolute left-4 top-0 flex items-center gap-1.5 pointer-events-none whitespace-nowrap">
         <span
-          className="w-1.5 h-1.5 rounded-full shrink-0 shadow-[0_0_8px_currentColor]"
-          style={{ backgroundColor: color, color }}
+          className="w-1.5 h-1.5 rounded-full shrink-0"
+          style={{
+            backgroundColor: color,
+            boxShadow: `0 0 4px ${color}90`,
+          }}
         />
         <span
-          className="font-mono text-[9px] font-bold tracking-tight text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]"
+          className="font-mono text-[9px] font-bold tracking-tight text-white/95 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]"
           style={{ color }}
         >
           {id}
         </span>
+        <span className="font-mono text-[8px] tracking-tight text-white/50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] hidden sm:inline">
+          {name}
+        </span>
       </div>
 
-      {/* Temporary Activity Badge (Renders ONLY when actively working on a component, fades out otherwise) */}
+      {/* Active Work Activity Badge (Clean Monospace Pill) */}
       {isWorking && activity && (
         <div
-          className="absolute left-4 top-4 px-2 py-0.5 rounded border backdrop-blur-md whitespace-nowrap shadow-xl animate-in fade-in zoom-in-95 duration-200"
+          className="absolute left-4 top-4 px-2 py-0.5 rounded border backdrop-blur-md whitespace-nowrap shadow-lg pointer-events-none"
           style={{
-            backgroundColor: 'rgba(8, 9, 13, 0.92)',
-            borderColor: `${color}80`,
-            boxShadow: `0 4px 15px rgba(0,0,0,0.8), 0 0 10px ${color}30`,
+            backgroundColor: 'rgba(9, 10, 15, 0.94)',
+            borderColor: `${color}60`,
+            boxShadow: `0 2px 8px rgba(0,0,0,0.8), 0 0 4px ${color}20`,
           }}
         >
           <div className="flex items-center gap-1.5">
             <span
-              className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0"
+              className="w-1 h-1 rounded-full shrink-0"
               style={{ backgroundColor: color }}
             />
             <span className="font-mono text-[8px] tracking-wider text-white/90 font-medium uppercase">

@@ -11,9 +11,11 @@ export class CameraController {
   private sectionElementMap: Record<ConstructionSectionId, string> = {
     hero: '#hero',
     about: '#about',
+    timeline: '[data-build-target="engineering-timeline"]',
     projects: '#projects',
     architecture: '#architecture',
     stack: '#stack',
+    experiments: '#experiments',
     contact: '#contact',
   };
 
@@ -76,4 +78,3 @@ export class CameraController {
     return this.currentSection;
   }
 }
-

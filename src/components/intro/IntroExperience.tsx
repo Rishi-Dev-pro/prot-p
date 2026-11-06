@@ -3,7 +3,7 @@ import { AgentCursorLayer } from './AgentCursorLayer';
 import { ConstructionOverlay } from './ConstructionOverlay';
 import { ConstructionTelemetry } from './ConstructionTelemetry';
 import { CentralCore } from './CentralCore';
-import { AGENT_REGISTRY } from '../../data/agents';
+import { AGENT_REGISTRY, MOBILE_AGENT_REGISTRY } from '../../data/agents';
 import { SECTION_TIMELINES, SectionTimelineConfig } from '../../animations/construction/ConstructionConfig';
 import {
   AgentOrchestrator,
@@ -35,12 +35,8 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
 
   const orchestratorRef = useRef<AgentOrchestrator | null>(null);
 
-  // Curated agents on mobile for 60 FPS, full 20 on desktop/tablet
-  const activeAgents = useRef(
-    isMobile
-      ? AGENT_REGISTRY.filter((_, idx) => [0, 1, 2, 3, 7, 8, 19].includes(idx))
-      : AGENT_REGISTRY
-  ).current;
+  // 7 curated active agents on desktop, 4 on mobile
+  const activeAgents = useRef(isMobile ? MOBILE_AGENT_REGISTRY : AGENT_REGISTRY).current;
 
   const handleSkip = useCallback(() => {
     if (orchestratorRef.current) {
@@ -78,7 +74,7 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
         setBannerNotification(banner);
         window.setTimeout(() => {
           setBannerNotification('');
-        }, 3000);
+        }, 3200);
       },
       onOverallProgress: (pct) => {
         setProgress(pct);
@@ -96,6 +92,9 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
     });
 
     orchestratorRef.current = orchestrator;
+    if (typeof window !== 'undefined') {
+      (window as unknown as { __orchestrator?: typeof orchestrator }).__orchestrator = orchestrator;
+    }
     orchestrator.init();
     orchestrator.play();
 
@@ -119,26 +118,57 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
 
   return (
     <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden select-none">
-      {/* Stage 0-3 Canvas Backdrop: Dark, mysterious slate canvas with technical grid */}
+      {/* Stage 0-4 Canvas Backdrop: Symmetrical, deep blueprint canvas with subtle radial illumination */}
       {(stage === 'BOOTING' ||
         stage === 'CANVAS_INITIALIZED' ||
         stage === 'AGENTS_ENTERING' ||
         stage === 'FORMATION_ACTIVE' ||
         stage === 'DEPLOYMENT_ACTIVE') && (
-        <div className="absolute inset-0 bg-[#050608] z-20 pointer-events-auto transition-opacity duration-700">
+        <div className="absolute inset-0 bg-[#06070A] z-20 pointer-events-auto transition-opacity duration-700">
+          {/* Subtle grid pattern */}
           <div
-            className="absolute inset-0 opacity-[0.07]"
+            className="absolute inset-0 opacity-[0.06]"
             style={{
-              backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
-              backgroundSize: '40px 40px',
+              backgroundImage: `linear-gradient(to right, #B44CFF 1px, transparent 1px), linear-gradient(to bottom, #B44CFF 1px, transparent 1px)`,
+              backgroundSize: '48px 48px',
             }}
           />
+          {/* Radial center illumination vignette */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                'radial-gradient(circle 420px at 50% 50%, rgba(180, 76, 255, 0.08) 0%, rgba(56, 189, 248, 0.03) 45%, transparent 75%)',
+            }}
+          />
+          {/* Subtle concentric orbit watermark rings */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20">
+            <circle
+              cx="50%"
+              cy="50%"
+              r="290"
+              stroke="#B44CFF"
+              strokeWidth="0.75"
+              strokeDasharray="4 8"
+              fill="none"
+            />
+            <circle
+              cx="50%"
+              cy="50%"
+              r="140"
+              stroke="#38BDF8"
+              strokeWidth="0.5"
+              strokeDasharray="2 6"
+              fill="none"
+            />
+          </svg>
         </div>
       )}
 
-      {/* Central Geometric Core for Booting, Arrival, Circular Orbit, and Radial Deployment */}
+      {/* Central Symmetrical Geometric Core */}
       <CentralCore
         stage={stage}
+        activeAgentsCount={activeAgents.length}
         bootMessage={bootMessage}
         syncTelemetry={syncTelemetry}
         burstParticles={burstParticles}
@@ -147,9 +177,9 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
       {/* Floating Section Completion Banner Notification */}
       {bannerNotification && (
         <div className="fixed top-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-[#00FF88]/40 bg-[#08090D]/95 backdrop-blur-xl shadow-[0_0_25px_rgba(0,255,136,0.25)]">
-            <span className="w-2 h-2 rounded-full bg-[#00FF88] animate-ping" />
-            <span className="font-mono text-[11px] font-bold text-white tracking-widest uppercase">
+          <div className="flex items-center gap-2.5 px-5 py-2 rounded-full border border-[#B44CFF]/40 bg-[#08090D]/95 backdrop-blur-xl shadow-[0_0_25px_rgba(180,76,255,0.25)]">
+            <span className="w-2 h-2 rounded-full bg-[#00F0FF] animate-ping" />
+            <span className="font-mono text-[10px] font-bold text-white tracking-widest uppercase">
               {bannerNotification}
             </span>
           </div>
@@ -175,7 +205,7 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
         onSkip={handleSkip}
       />
 
-      {/* Freestyle 20-Agent Cursor Layer with Dynamic Orbit & Bézier Movement */}
+      {/* 7-Agent Precision Cursor Layer */}
       <AgentCursorLayer
         agents={agents}
         visible={stage !== 'BOOTING' && stage !== 'CANVAS_INITIALIZED' && !isDone}

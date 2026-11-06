@@ -121,77 +121,33 @@
   will-change: transform, opacity, clip-path;
 }
 
-/* 1. Unbuilt state (invisible before agent arrival) */
+/* 1. Unbuilt state: Strictly hidden before assigned agent arrives */
+html.is-booting [data-build-target],
 body.construction-active [data-build-status="unbuilt"] {
   opacity: 0 !important;
-  transform: translate3d(0, 16px, 0) scale(0.97) !important;
+  visibility: hidden !important;
   pointer-events: none !important;
-  clip-path: inset(0 100% 0 0);
+  clip-path: inset(0 100% 0 0) !important;
+  user-select: none !important;
 }
 
-/* 2. Wireframe blueprint state (agent approaching / locking coordinates) */
+/* 2. Building / Synthesizing state: Visibility unlocked for physical progressive builders */
+body.construction-active [data-build-status="building"],
+body.construction-active [data-build-status="drawing"],
 body.construction-active [data-build-status="wireframe"] {
-  opacity: 0.95 !important;
-  transform: translate3d(0, 0, 0) scale(1) !important;
-  outline: 1.5px dashed rgba(0, 240, 255, 0.8) !important;
-  outline-offset: 4px;
-  animation: wireframe-pulse 0.8s infinite alternate !important;
-  clip-path: inset(0 0 0 0) !important;
-  position: relative;
-}
-
-body.construction-active [data-build-status="wireframe"]::after {
-  content: "BLUEPRINT // ALLOCATING";
-  position: absolute;
-  top: -18px;
-  left: 0;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8px;
-  color: #00F0FF;
-  background: rgba(8, 9, 13, 0.9);
-  padding: 1px 4px;
-  border-radius: 2px;
-  border: 1px solid rgba(0, 240, 255, 0.4);
-  letter-spacing: 0.5px;
-  pointer-events: none;
-  z-index: 40;
-}
-
-/* 3. Drawing state (agent actively sweeping across the component) */
-body.construction-active [data-build-status="drawing"] {
+  visibility: visible !important;
   opacity: 1 !important;
-  transform: translate3d(0, 0, 0) scale(1) !important;
-  outline: 1.5px solid rgba(255, 65, 77, 0.9) !important;
-  outline-offset: 3px;
-  box-shadow: 0 0 25px rgba(255, 65, 77, 0.35) !important;
-  clip-path: inset(0 0 0 0) !important;
-  position: relative;
+  pointer-events: none !important;
 }
 
-body.construction-active [data-build-status="drawing"]::after {
-  content: "SYNTHESIZING_DOM";
-  position: absolute;
-  top: -18px;
-  right: 0;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8px;
-  color: #FF414D;
-  background: rgba(8, 9, 13, 0.9);
-  padding: 1px 4px;
-  border-radius: 2px;
-  border: 1px solid rgba(255, 65, 77, 0.5);
-  letter-spacing: 0.5px;
-  pointer-events: none;
-  z-index: 40;
-}
-
-/* 4. Assembled state (solidified production component) */
+/* 3. Assembled state: Solidified production component */
 body.construction-active [data-build-status="assembled"],
 [data-build-status="assembled"] {
   opacity: 1 !important;
+  visibility: visible !important;
   transform: none !important;
   outline: none !important;
-  box-shadow: none;
+  box-shadow: none !important;
   clip-path: none !important;
 }
 
@@ -212,4 +168,16 @@ body.construction-active [data-build-status="assembled"],
 
 .animate-laser-scan {
   animation: laser-sweep 5s ease-in-out infinite alternate;
+}
+
+/* Precision Phase C.1 Blueprint & Typography Styles */
+.blueprint-outline-svg {
+  pointer-events: none !important;
+  will-change: stroke-dashoffset, opacity;
+}
+
+.build-char-span {
+  display: inline;
+  white-space: pre-wrap;
+  will-change: opacity;
 }

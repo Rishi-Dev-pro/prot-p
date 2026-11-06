@@ -1,103 +1,75 @@
 import { gsap } from 'gsap';
+import { createBlueprintOutline } from './BlueprintOutline';
+import { writeCharacters } from './CharacterWriter';
 
 export interface TypographyBuilderOptions {
   containerSelector: string;
-  baselineGuide?: boolean;
-  staggerDelay?: number;
+  accentColor?: string;
+  durationSec?: number;
+  onCursorPosition?: (x: number, y: number) => void;
   onProgress?: (progressPct: number, currentAction: string) => void;
   onComplete?: () => void;
 }
 
+/**
+ * TypographyBuilder: True character-by-character physical text synthesis.
+ * Sequence:
+ * 1. Blueprint outline traces the text container bounds.
+ * 2. Letters appear individually (E -> N -> G -> I -> N -> E -> E -> R -> I -> N -> G).
+ * 3. Cursor glides along the text baseline synchronized to character reveals.
+ * 4. Blueprint outline smoothly dissolves leaving pristine final typography.
+ */
 export function buildTypography(options: TypographyBuilderOptions): gsap.core.Timeline {
-  const tl = gsap.timeline({
-    onUpdate: () => {
-      const p = Math.round(tl.progress() * 100);
-      options.onProgress?.(
-        p,
-        p < 20
-          ? 'DRAWING_BASELINES'
-          : p < 45
-          ? 'REVEALING_ALIGNMENT_GUIDES'
-          : p < 70
-          ? 'ASSEMBLING_GLYPH_GROUPS'
-          : p < 90
-          ? 'OUTLINE_TO_SOLID_TRANSFORM'
-          : 'TYPOGRAPHY_COMPILED'
-      );
-    },
+  const accent = options.accentColor || '#C4B5FD';
+  const totalDuration = options.durationSec || 1.1;
+
+  const masterTl = gsap.timeline({
     onComplete: options.onComplete,
   });
 
   const el = document.querySelector<HTMLElement>(options.containerSelector);
-  if (!el) return tl;
+  if (!el) return masterTl;
 
-  tl.set(el, {
-    opacity: 1,
-    visibility: 'visible',
+  // Make element container visible and unclipped
+  el.style.opacity = '1';
+  el.style.visibility = 'visible';
+  el.style.clipPath = 'none';
+
+  // 1. Stage: Blueprint Outline (~0.32s)
+  const blueprintDuration = 0.32;
+  const blueprint = createBlueprintOutline({
+    targetElement: el,
+    accentColor: accent,
+    durationSec: blueprintDuration,
+    onPerimeterTrace: options.onCursorPosition,
   });
 
-  const textNodes = el.matches('h1, h2, h3, p, span') ? [el] : Array.from(el.querySelectorAll<HTMLElement>('h1, h2, h3, p, span'));
-  if (textNodes.length === 0) {
-    textNodes.push(el);
-  }
+  masterTl.add(blueprint.timeline, 0);
 
-  textNodes.forEach((node, hIdx) => {
-    // Stage 1 & 2: Draw baseline & alignment guides
-    tl.to(
-      node,
-      {
-        duration: 0.3,
-        outline: '1.5px dashed rgba(0, 240, 255, 0.75)',
-        outlineOffset: '4px',
-        ease: 'power1.out',
-      },
-      hIdx * 0.15
-    );
-
-    // Stage 3, 4 & 5: Assemble glyphs with letter-spacing adjustment
-    tl.fromTo(
-      node,
-      {
-        opacity: 0,
-        y: 10,
-        letterSpacing: '0.18em',
-        filter: 'blur(3px)',
-      },
-      {
-        opacity: 0.85,
-        y: 0,
-        letterSpacing: 'normal',
-        filter: 'blur(0px)',
-        duration: 0.35,
-        ease: 'power3.out',
-      },
-      '>-0.1'
-    );
-
-    // Stage 6 & 7: Outline to solid transition & final opacity snap
-    tl.to(
-      node,
-      {
-        opacity: 1,
-        color: '#F3F3F5',
-        duration: 0.25,
-        ease: 'power2.inOut',
-      },
-      '>'
-    );
-
-    // Stage 8 & 9: Remove temporary alignment guides & apply final polish
-    tl.to(
-      node,
-      {
-        outline: 'none',
-        clearProps: 'outline,outlineOffset,filter',
-        duration: 0.15,
-        ease: 'power1.in',
-      },
-      '>'
-    );
+  // 2. Stage: Character-by-Character Writing
+  const writeDuration = Math.max(0.4, totalDuration - blueprintDuration - 0.25);
+  const writer = writeCharacters({
+    containerElement: el,
+    durationSec: writeDuration,
+    accentColor: accent,
+    onCharacterProgress: (cx, cy, char, pct) => {
+      options.onCursorPosition?.(cx, cy);
+      options.onProgress?.(
+        35 + Math.round(pct * 0.55),
+        `WRITING_GLYPH: "${char}"`
+      );
+    },
   });
 
-  return tl;
+  masterTl.add(writer.timeline, blueprintDuration);
+
+  // 3. Stage: Blueprint Outline Dissolve (~0.25s)
+  masterTl.add(() => {
+    options.onProgress?.(95, 'SOLIDIFYING_TYPOGRAPHY');
+    blueprint.dissolve(0.25);
+  }, blueprintDuration + writeDuration);
+
+  masterTl.to({}, { duration: 0.25 });
+
+  return masterTl;
 }

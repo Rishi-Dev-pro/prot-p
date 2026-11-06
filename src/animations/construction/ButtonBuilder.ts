@@ -1,85 +1,93 @@
 import { gsap } from 'gsap';
+import { createBlueprintOutline } from './BlueprintOutline';
 
 export interface ButtonBuilderOptions {
   selector: string;
+  accentColor?: string;
+  durationSec?: number;
+  onCursorPosition?: (x: number, y: number) => void;
   onProgress?: (progressPct: number, currentAction: string) => void;
   onComplete?: () => void;
 }
 
+/**
+ * ButtonBuilder: Progressive button and interactive control construction.
+ * 1. Blueprint outline traces the button perimeter.
+ * 2. Background surface fill.
+ * 3. Icon and text label progressive reveal.
+ * 4. Blueprint outline dissolves, restoring full interactive state.
+ */
 export function buildButton(options: ButtonBuilderOptions): gsap.core.Timeline {
-  const tl = gsap.timeline({
-    onUpdate: () => {
-      const p = Math.round(tl.progress() * 100);
-      options.onProgress?.(
-        p,
-        p < 20
-          ? 'ESTABLISHING_DIMENSIONS'
-          : p < 45
-          ? 'DRAWING_OUTLINE'
-          : p < 65
-          ? 'FILLING_BACKGROUND'
-          : p < 85
-          ? 'CONSTRUCTING_LABEL_ICON'
-          : 'ATTACHING_ACCENT'
-      );
-    },
+  const accent = options.accentColor || '#E2E8F0';
+  const duration = options.durationSec || 0.8;
+
+  const masterTl = gsap.timeline({
     onComplete: options.onComplete,
   });
 
   const el = document.querySelector<HTMLElement>(options.selector);
-  if (!el) return tl;
+  if (!el) return masterTl;
 
-  const buttons = el.matches('button, a') ? [el] : Array.from(el.querySelectorAll<HTMLElement>('button, a'));
-  if (buttons.length === 0) {
-    buttons.push(el);
-  }
+  // Make element visible for construction
+  el.style.opacity = '1';
+  el.style.visibility = 'visible';
+  el.style.clipPath = 'none';
 
-  buttons.forEach((btn, idx) => {
-    // 1. Establish dimensions & wireframe bounds
-    tl.set(
-      btn,
-      {
-        opacity: 0,
-        scale: 0.92,
-        outline: '1.5px dashed rgba(0, 240, 255, 0.7)',
-        outlineOffset: '3px',
-      },
-      idx * 0.15
-    );
-
-    // 2. Draw outline & show bounds
-    tl.to(btn, {
-      opacity: 0.9,
-      duration: 0.25,
-      ease: 'power1.out',
-    });
-
-    // 3. Fill background & snap shape
-    tl.to(btn, {
-      scale: 1,
-      backgroundColor: 'rgba(255, 65, 77, 0.12)',
-      duration: 0.25,
-      ease: 'power2.out',
-    });
-
-    // 4. Reveal label & icon
-    const labelAndIcon = btn.querySelectorAll('span, svg');
-    if (labelAndIcon.length > 0) {
-      tl.fromTo(
-        labelAndIcon,
-        { opacity: 0, y: 4 },
-        { opacity: 1, y: 0, stagger: 0.04, duration: 0.25, ease: 'back.out(2)' }
-      );
-    }
-
-    // 5. Final accent highlight & remove wireframe outline
-    tl.to(btn, {
-      outline: 'none',
-      clearProps: 'outline,outlineOffset',
-      duration: 0.2,
-      ease: 'power1.in',
-    });
+  // 1. Stage: Blueprint Outline (~0.3s)
+  const blueprint = createBlueprintOutline({
+    targetElement: el,
+    accentColor: accent,
+    durationSec: 0.3,
+    onPerimeterTrace: options.onCursorPosition,
   });
 
-  return tl;
+  masterTl.add(blueprint.timeline, 0);
+
+  // 2. Stage: Surface & Button Body
+  const buttons = el.matches('button, a')
+    ? [el]
+    : Array.from(el.querySelectorAll<HTMLElement>('button, a'));
+
+  const targets = buttons.length > 0 ? buttons : [el];
+
+  targets.forEach((btn, idx) => {
+    masterTl.fromTo(
+      btn,
+      { opacity: 0, scale: 0.94 },
+      {
+        opacity: 1,
+        scale: 1,
+        duration: duration * 0.25,
+        ease: 'back.out(1.8)',
+      },
+      0.3 + idx * 0.08
+    );
+
+    // 3. Stage: Icon and Label reveal
+    const labelAndIcon = btn.querySelectorAll('span, svg');
+    if (labelAndIcon.length > 0) {
+      masterTl.fromTo(
+        labelAndIcon,
+        { opacity: 0, y: 3 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.18,
+          stagger: 0.03,
+          ease: 'power2.out',
+        },
+        '>-0.08'
+      );
+    }
+  });
+
+  // 4. Stage: Blueprint Dissolve
+  masterTl.add(() => {
+    options.onProgress?.(95, 'BUTTON_INTERACTIVE');
+    blueprint.dissolve(0.25);
+  }, `>${duration * 0.1}`);
+
+  masterTl.to({}, { duration: 0.25 });
+
+  return masterTl;
 }

@@ -64,7 +64,11 @@ export const Hero: React.FC<HeroProps> = ({
           </p>
 
           {/* Live Technical Information Area (Part D.2) */}
-          <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-2xl p-3 rounded-lg border border-white/10 bg-[#0E0F15]/90 backdrop-blur-md">
+          <div
+            data-build-target="hero-stats"
+            data-build-status="unbuilt"
+            className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-2xl p-3 rounded-lg border border-white/10 bg-[#0E0F15]/90 backdrop-blur-md"
+          >
             <div className="flex flex-col">
               <span className="font-mono text-[9px] text-white/40 tracking-wider">SYSTEM</span>
               <span className="font-mono text-xs font-bold text-white tracking-wide">RISHI_ENGINEERING</span>
@@ -86,82 +90,84 @@ export const Hero: React.FC<HeroProps> = ({
             </div>
           </div>
 
-          {/* Action CTAs */}
+          {/* Action CTAs & Interactive Exploration Controls */}
           <div
             data-build-target="hero-actions"
             data-build-status="unbuilt"
-            className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4"
+            className="mt-8 flex flex-col gap-4"
           >
-            <Button href="#projects" variant="primary" size="md" icon techCode="02">
-              VIEW PROJECTS
-            </Button>
-            <Button href="#about" variant="secondary" size="md" techCode="01">
-              EXPLORE ABOUT
-            </Button>
-            <Button
-              href={SOCIAL_LINKS.github}
-              external
-              variant="outline"
-              size="md"
-              techCode="GIT"
-            >
-              <GithubIcon className="w-3.5 h-3.5 mr-2" />
-              GITHUB
-            </Button>
-            <Button href="#contact" variant="ghost" size="md">
-              CONTACT
-            </Button>
-          </div>
-
-          {/* Interactive Exploration Controls (Part D.2 & Part E) */}
-          <div className="mt-4 flex flex-wrap items-center gap-2 pt-2">
-            <span className="font-mono text-[10px] text-white/40 tracking-wider uppercase mr-1">
-              EXPLORE_TOOLS:
-            </span>
-
-            {onOpenCommandPalette && (
-              <button
-                onClick={() => {
-                  soundEffects.playClick();
-                  onOpenCommandPalette();
-                }}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-white/10 bg-[#12131A] hover:bg-white/10 text-[10px] font-mono text-white/80 transition-colors cursor-pointer"
-                title="Command Palette (Ctrl + K)"
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+              <Button href="#projects" variant="primary" size="md" icon techCode="02">
+                VIEW PROJECTS
+              </Button>
+              <Button href="#about" variant="secondary" size="md" techCode="01">
+                EXPLORE ABOUT
+              </Button>
+              <Button
+                href={SOCIAL_LINKS.github}
+                external
+                variant="outline"
+                size="md"
+                techCode="GIT"
               >
-                <Search className="w-3 h-3 text-[#FF414D]" />
-                <span>COMMAND PALETTE</span>
-                <kbd className="px-1 py-0.2 rounded bg-white/10 text-[8px] text-white/50">⌘K</kbd>
-              </button>
-            )}
+                <GithubIcon className="w-3.5 h-3.5 mr-2" />
+                GITHUB
+              </Button>
+              <Button href="#contact" variant="ghost" size="md">
+                CONTACT
+              </Button>
+            </div>
 
-            {onOpenTerminal && (
-              <button
-                onClick={() => {
-                  soundEffects.playClick();
-                  onOpenTerminal();
-                }}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-white/10 bg-[#12131A] hover:bg-white/10 text-[10px] font-mono text-white/80 transition-colors cursor-pointer"
-                title="Open Interactive Terminal"
-              >
-                <Terminal className="w-3 h-3 text-[#00FF88]" />
-                <span>TERMINAL</span>
-                <kbd className="px-1 py-0.2 rounded bg-white/10 text-[8px] text-white/50">`</kbd>
-              </button>
-            )}
+            {/* Interactive Exploration Controls (Part D.2 & Part E) */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <span className="font-mono text-[10px] text-white/40 tracking-wider uppercase mr-1">
+                EXPLORE_TOOLS:
+              </span>
 
-            {onOpenComparator && (
-              <button
-                onClick={() => {
-                  soundEffects.playClick();
-                  onOpenComparator();
-                }}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-white/10 bg-[#12131A] hover:bg-white/10 text-[10px] font-mono text-white/80 transition-colors cursor-pointer"
-                title="Side-by-side Project Comparator"
-              >
-                <Scale className="w-3 h-3 text-[#00F0FF]" />
-                <span>COMPARE PROJECTS</span>
-              </button>
-            )}
+              {onOpenCommandPalette && (
+                <button
+                  onClick={() => {
+                    soundEffects.playClick();
+                    onOpenCommandPalette();
+                  }}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-white/10 bg-[#12131A] hover:bg-white/10 text-[10px] font-mono text-white/80 transition-colors cursor-pointer"
+                  title="Command Palette (Ctrl + K)"
+                >
+                  <Search className="w-3 h-3 text-[#FF414D]" />
+                  <span>COMMAND PALETTE</span>
+                  <kbd className="px-1 py-0.2 rounded bg-white/10 text-[8px] text-white/50">⌘K</kbd>
+                </button>
+              )}
+
+              {onOpenTerminal && (
+                <button
+                  onClick={() => {
+                    soundEffects.playClick();
+                    onOpenTerminal();
+                  }}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-white/10 bg-[#12131A] hover:bg-white/10 text-[10px] font-mono text-white/80 transition-colors cursor-pointer"
+                  title="Open Interactive Terminal"
+                >
+                  <Terminal className="w-3 h-3 text-[#00FF88]" />
+                  <span>TERMINAL</span>
+                  <kbd className="px-1 py-0.2 rounded bg-white/10 text-[8px] text-white/50">`</kbd>
+                </button>
+              )}
+
+              {onOpenComparator && (
+                <button
+                  onClick={() => {
+                    soundEffects.playClick();
+                    onOpenComparator();
+                  }}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-white/10 bg-[#12131A] hover:bg-white/10 text-[10px] font-mono text-white/80 transition-colors cursor-pointer"
+                  title="Side-by-side Project Comparator"
+                >
+                  <Scale className="w-3 h-3 text-[#00F0FF]" />
+                  <span>COMPARE PROJECTS</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

@@ -10,22 +10,24 @@ export class CircularFormationEngine {
   private centerX: number;
   private centerY: number;
   private baseRadius: number;
-  private rotationAngle = 0;
-  private rotationSpeed = 0.8; // radians per second
+  private rotationSpeed = 0.55; // Radians per second for majestic, smooth orbit
   private agentCount: number;
 
-  constructor(width: number, height: number, agentCount = 20) {
+  constructor(width: number, height: number, agentCount = 6) {
     this.centerX = width / 2;
     this.centerY = height / 2;
     this.agentCount = agentCount;
-    // Desktop radius ~220px, responsive on smaller viewports
-    this.baseRadius = Math.max(130, Math.min(width, height) * 0.24);
+    // Responsive radius with ample clearance from central core
+    this.baseRadius = Math.max(160, Math.min(width, height) * 0.32);
   }
 
-  public updateViewport(width: number, height: number): void {
+  public updateViewport(width: number, height: number, agentCount?: number): void {
     this.centerX = width / 2;
     this.centerY = height / 2;
-    this.baseRadius = Math.max(130, Math.min(width, height) * 0.24);
+    if (agentCount !== undefined) {
+      this.agentCount = agentCount;
+    }
+    this.baseRadius = Math.max(160, Math.min(width, height) * 0.32);
   }
 
   public getCenter(): { x: number; y: number; radius: number } {
@@ -36,7 +38,7 @@ export class CircularFormationEngine {
    * Calculates orbital target for an agent during convergence and synchronous rotation
    * @param agentIndex Index 0..agentCount-1
    * @param elapsedSec Elapsed time in seconds
-   * @param formationProgress 0 (just starting entry) to 1 (fully locked in orbit)
+   * @param formationProgress 0 (entry) to 1 (locked in orbit)
    * @param startPos Initial entry point from viewport edge
    */
   public getAgentPosition(
@@ -45,38 +47,42 @@ export class CircularFormationEngine {
     formationProgress: number,
     startPos: { x: number; y: number }
   ): OrbitAgentTarget {
-    // Angular distribution evenly spaced across 360 degrees
-    const baseAngle = (agentIndex / this.agentCount) * (Math.PI * 2);
-    // Smooth dynamic rotation with subtle acceleration
+    // Symmetrical angular distribution starting at apex (-PI/2 is 12 o'clock)
+    const baseAngle = -Math.PI / 2 + (agentIndex / this.agentCount) * (Math.PI * 2);
+    // Smooth dynamic rotation
     const currentAngle = baseAngle + elapsedSec * this.rotationSpeed;
 
-    // Organic breathing radius variation per agent
-    const radiusMod = Math.sin(elapsedSec * 3 + agentIndex * 0.6) * 7;
+    // Organic breathing radius variation
+    const radiusMod = Math.sin(elapsedSec * 2.5 + agentIndex * (Math.PI / 3.5)) * 5;
     const activeRadius = this.baseRadius + radiusMod;
 
-    // Ideal orbit position
+    // Ideal orbit coordinate
     const orbitX = this.centerX + Math.cos(currentAngle) * activeRadius;
     const orbitY = this.centerY + Math.sin(currentAngle) * activeRadius;
 
-    // Tangential direction for the cursor pointer arrow
+    // Tangential direction for the cursor pointer arrow (pointing forward along orbit path)
     const tangentAngleRad = currentAngle + Math.PI / 2;
     const tangentAngleDeg = (tangentAngleRad * 180) / Math.PI;
 
     if (formationProgress < 1) {
-      // Smooth cubic bezier-like ease between entry point and orbit point
+      // Smooth cubic bezier easing between entry edge and orbit point
       const ease = this.easeInOutCubic(formationProgress);
       const curX = startPos.x + (orbitX - startPos.x) * ease;
       const curY = startPos.y + (orbitY - startPos.y) * ease;
 
-      // Pointer faces the orbit destination during convergence
+      // Pointer smoothly faces its target point while flying inward
       const dx = orbitX - curX;
       const dy = orbitY - curY;
       const moveAngleDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
 
+      // Interpolate between trajectory angle and tangent angle as it locks into orbit
+      const blend = Math.max(0, (formationProgress - 0.7) / 0.3);
+      const angle = blend > 0 ? this.lerpAngle(moveAngleDeg, tangentAngleDeg, blend) : moveAngleDeg;
+
       return {
         x: curX,
         y: curY,
-        angle: Math.abs(dx) + Math.abs(dy) > 2 ? moveAngleDeg : tangentAngleDeg,
+        angle,
         progress: formationProgress,
         inFormation: formationProgress > 0.85,
       };
@@ -91,8 +97,12 @@ export class CircularFormationEngine {
     };
   }
 
+  private lerpAngle(a: number, b: number, t: number): number {
+    const diff = ((b - a + 180) % 360) - 180;
+    return a + diff * t;
+  }
+
   private easeInOutCubic(t: number): number {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   }
 }
-

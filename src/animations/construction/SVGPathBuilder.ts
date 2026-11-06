@@ -2,21 +2,32 @@ import { gsap } from 'gsap';
 
 export interface SVGPathBuilderOptions {
   svgContainerSelector: string;
+  accentColor?: string;
+  durationSec?: number;
+  onCursorPosition?: (x: number, y: number) => void;
   onProgress?: (progressPct: number, currentAction: string) => void;
   onComplete?: () => void;
 }
 
+/**
+ * SVGPathBuilder: Progressive vector path drawing, node expansion, and topological connection.
+ * Used for both the Hero orbital hexagon avatar and the Architecture distributed neural network.
+ */
 export function buildArchitectureSVG(options: SVGPathBuilderOptions): gsap.core.Timeline {
+  const duration = options.durationSec || 1.35;
+
   const tl = gsap.timeline({
     onUpdate: () => {
       const p = Math.round(tl.progress() * 100);
       options.onProgress?.(
         p,
-        p < 30
-          ? 'DRAWING_CENTRAL_CORE'
-          : p < 70
-          ? 'EXTENDING_RADIAL_RAYS'
-          : 'SYNCHRONIZING_DOMAIN_NODES'
+        p < 25
+          ? 'ESTABLISHING_CENTRAL_APEX'
+          : p < 60
+          ? 'DRAWING_VECTOR_CONNECTORS'
+          : p < 85
+          ? 'EXPANDING_DOMAIN_NODES'
+          : 'NETWORK_CONNECTED'
       );
     },
     onComplete: options.onComplete,
@@ -25,15 +36,22 @@ export function buildArchitectureSVG(options: SVGPathBuilderOptions): gsap.core.
   const container = document.querySelector<HTMLElement>(options.svgContainerSelector);
   if (!container) return tl;
 
+  container.style.opacity = '1';
+  container.style.visibility = 'visible';
+
+  const rect = container.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
   const svgLines = container.querySelectorAll('line, path');
   const svgCircles = container.querySelectorAll('circle');
-  const nodeButtons = container.querySelectorAll('button');
+  const nodeButtons = container.querySelectorAll('button, [class*="node-item"], [class*="badge"]');
 
-  // 1. Initial State: SVG lines start with strokeDasharray and offset
+  // 1. Initial State: SVG lines set to strokeDasharray/offset, nodes scaled to zero
   tl.set(svgLines, {
-    strokeDasharray: 200,
-    strokeDashoffset: 200,
-    opacity: 0.8,
+    strokeDasharray: 350,
+    strokeDashoffset: 350,
+    opacity: 0.9,
   });
 
   tl.set(svgCircles, {
@@ -41,44 +59,51 @@ export function buildArchitectureSVG(options: SVGPathBuilderOptions): gsap.core.
     transformOrigin: 'center center',
   });
 
-  tl.set(nodeButtons, {
-    scale: 0.5,
-    opacity: 0,
+  if (nodeButtons.length > 0) {
+    tl.set(nodeButtons, {
+      scale: 0.6,
+      opacity: 0,
+    });
+  }
+
+  // 2. Central Hub Anchor point pop (cursor at center)
+  tl.call(() => {
+    options.onCursorPosition?.(centerX, centerY);
   });
 
-  // 2. Central Core Circle Drawing
   tl.to(svgCircles, {
     scale: 1,
-    duration: 0.6,
-    stagger: 0.1,
-    ease: 'back.out(1.8)',
+    duration: duration * 0.35,
+    stagger: 0.08,
+    ease: 'back.out(2)',
   });
 
-  // 3. Radial Rays Drawing outward from center
+  // 3. Vector paths draw outward (strokeDashoffset -> 0)
   tl.to(
     svgLines,
     {
       strokeDashoffset: 0,
-      duration: 0.8,
-      stagger: 0.1,
+      duration: duration * 0.5,
+      stagger: 0.06,
       ease: 'power2.inOut',
     },
     '>-0.2'
   );
 
-  // 4. Peripheral Domain Nodes Expand
-  tl.to(
-    nodeButtons,
-    {
-      scale: 1,
-      opacity: 1,
-      duration: 0.5,
-      stagger: 0.08,
-      ease: 'back.out(2)',
-    },
-    '>-0.3'
-  );
+  // 4. Peripheral Domain Nodes and Labels expand (cursor moves to domain node)
+  if (nodeButtons.length > 0) {
+    tl.to(
+      nodeButtons,
+      {
+        scale: 1,
+        opacity: 1,
+        duration: duration * 0.35,
+        stagger: 0.05,
+        ease: 'back.out(1.8)',
+      },
+      '>-0.25'
+    );
+  }
 
   return tl;
 }
-
