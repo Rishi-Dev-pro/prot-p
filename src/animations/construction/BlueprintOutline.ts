@@ -1,4 +1,5 @@
 import { gsap } from 'gsap';
+import { BlueprintManager } from './BlueprintManager';
 
 export interface BlueprintOutlineOptions {
   targetElement: HTMLElement;
@@ -9,6 +10,8 @@ export interface BlueprintOutlineOptions {
 }
 
 export interface BlueprintOutlineInstance {
+  id: string;
+  svgElement: SVGSVGElement;
   timeline: gsap.core.Timeline;
   dissolve: (durationSec?: number) => Promise<void>;
   destroy: () => void;
@@ -86,6 +89,8 @@ export function createBlueprintOutline(
     );
   }
 
+  const instanceId = `blueprint-${Math.random().toString(36).substring(2, 9)}`;
+
   // Animate perimeter drawing
   const tl = gsap.timeline({
     onUpdate: () => {
@@ -97,6 +102,7 @@ export function createBlueprintOutline(
       }
     },
     onComplete: () => {
+      BlueprintManager.setStatus(instanceId, 'OUTLINE_ACTIVE');
       onComplete?.();
     },
   });
@@ -107,8 +113,9 @@ export function createBlueprintOutline(
     ease: 'power2.inOut',
   });
 
-  const dissolve = (dissolveDuration = 0.3): Promise<void> => {
+  const dissolve = (dissolveDuration = 0.25): Promise<void> => {
     return new Promise((resolve) => {
+      BlueprintManager.setStatus(instanceId, 'OUTLINE_DISSOLVING');
       gsap.to(svg, {
         opacity: 0,
         duration: dissolveDuration,
@@ -117,6 +124,7 @@ export function createBlueprintOutline(
           if (svg.parentNode) {
             svg.parentNode.removeChild(svg);
           }
+          BlueprintManager.setStatus(instanceId, 'OUTLINE_REMOVED');
           resolve();
         },
       });
@@ -125,12 +133,16 @@ export function createBlueprintOutline(
 
   const destroy = () => {
     tl.kill();
+    gsap.killTweensOf(svg);
     if (svg.parentNode) {
       svg.parentNode.removeChild(svg);
     }
+    BlueprintManager.setStatus(instanceId, 'OUTLINE_REMOVED');
   };
 
-  return { timeline: tl, dissolve, destroy };
+  BlueprintManager.register(instanceId, targetElement, svg, dissolve, destroy);
+
+  return { id: instanceId, svgElement: svg, timeline: tl, dissolve, destroy };
 }
 
 /**

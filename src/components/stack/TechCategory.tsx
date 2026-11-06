@@ -25,8 +25,15 @@ export const TechCategory: React.FC<TechCategoryProps> = ({ category }) => {
               {category.title}
             </h3>
           </div>
-          <span className="font-mono text-[10px] text-white/40 uppercase">
-            // {category.code}
+          <span
+            className="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border"
+            style={{
+              borderColor: `${category.accent}40`,
+              backgroundColor: `${category.accent}12`,
+              color: category.accent,
+            }}
+          >
+            {category.badge || `// ${category.code}`}
           </span>
         </div>
 

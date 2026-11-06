@@ -9,6 +9,7 @@ import {
   Calendar,
   Sparkles,
   ChevronRight,
+  Briefcase,
 } from 'lucide-react';
 import { soundEffects } from '../../services/soundEffects';
 
@@ -16,7 +17,7 @@ export interface TimelineMilestone {
   id: string;
   year: string;
   title: string;
-  category: 'academic' | 'flagship' | 'vision' | 'architecture';
+  category: 'experience' | 'academic' | 'flagship' | 'vision' | 'architecture';
   categoryLabel: string;
   institutionOrSystem: string;
   description: string;
@@ -27,21 +28,56 @@ export interface TimelineMilestone {
 
 export const ENGINEERING_MILESTONES: TimelineMilestone[] = [
   {
-    id: 'brainware-bca',
-    year: '2023 — Present',
-    title: 'Bachelor of Computer Applications (MAWT)',
-    category: 'academic',
-    categoryLabel: 'ACADEMIC FOUNDATION',
-    institutionOrSystem: 'Brainware University, India',
+    id: 'gameonix-backend',
+    year: '6 Months',
+    title: 'Backend Developer Intern',
+    category: 'experience',
+    categoryLabel: 'PROFESSIONAL EXPERIENCE',
+    institutionOrSystem: 'Gameonix (#1 Esports Hosting App)',
     description:
-      'Rigorous foundational computing studies focusing on discrete mathematics, object-oriented systems, data structures, and computer network mechanics.',
+      'Completed a 6-month technical internship as Backend Developer Intern at Gameonix, the leading esports hosting and tournament application.',
     highlights: [
-      'Core focus: Software Engineering, Database Systems, Network Architecture',
-      'Hands-on system prototypes built in parallel with formal coursework',
-      'Autonomous exploration of high-concurrency Node.js and Python ecosystems',
+      'Organization: Gameonix — #1 esports hosting app',
+      'Role: Backend Developer Intern (Duration: 6 months)',
+      'Core focus: Server-side architecture, API endpoints, and database interactions',
     ],
-    statusBadge: 'ACTIVE DEGREE ENROLLMENT',
+    statusBadge: 'COMPLETED (6 MOS)',
+    accentColor: '#00F0FF',
+  },
+  {
+    id: 'gameonix-marketing',
+    year: '6 Months',
+    title: 'Marketing Intern',
+    category: 'experience',
+    categoryLabel: 'PROFESSIONAL EXPERIENCE',
+    institutionOrSystem: 'Gameonix (#1 Esports Hosting App)',
+    description:
+      'Completed a 6-month internship as Marketing Intern at Gameonix, supporting outreach, user acquisition, and player engagement.',
+    highlights: [
+      'Organization: Gameonix — #1 esports hosting app',
+      'Role: Marketing Intern (Duration: 6 months)',
+      'Core focus: Marketing strategy, community engagement, and tournament promotion',
+    ],
+    statusBadge: 'COMPLETED (6 MOS)',
     accentColor: '#FF414D',
+  },
+  {
+    id: 'brainware-bca',
+    year: 'Undergraduate',
+    title: 'BCA (MAWT)',
+    category: 'academic',
+    categoryLabel: 'EDUCATION FOUNDATION',
+    institutionOrSystem: 'Brainware University',
+    description:
+      'Bachelor of Computer Applications with specialization in Mobile Application and Web Technology (MAWT) at Brainware University.',
+    highlights: [
+      'Institution: Brainware University',
+      'Course: BCA (MAWT)',
+      'Verified CGPA: 9.60',
+      'Core curriculum: Data Structures, Database Management, Software Engineering, Object-Oriented Programming',
+    ],
+    statusBadge: 'CGPA: 9.60',
+    accentColor: '#34D399',
   },
   {
     id: 'ahi-prototype',
@@ -142,10 +178,10 @@ export const EngineeringTimeline: React.FC = () => {
 
   const categories = [
     { id: 'all', label: 'ALL MILESTONES' },
-    { id: 'academic', label: 'ACADEMIC' },
+    { id: 'experience', label: 'INTERNSHIPS & INDUSTRY' },
+    { id: 'academic', label: 'EDUCATION (CGPA: 9.60)' },
     { id: 'flagship', label: 'FLAGSHIP INITIATIVES' },
     { id: 'vision', label: 'COMPUTER VISION' },
-    { id: 'architecture', label: 'ARCHITECTURE & TESTS' },
   ];
 
   return (

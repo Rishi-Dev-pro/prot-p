@@ -70,6 +70,13 @@ export function writeCharacters(options: CharacterWriterOptions): CharacterWrite
   baselineGuide.style.pointerEvents = 'none';
   document.body.appendChild(baselineGuide);
 
+  // Hard safety timeout: Baseline guide must never persist beyond 3.5s
+  window.setTimeout(() => {
+    if (baselineGuide.parentNode) {
+      baselineGuide.parentNode.removeChild(baselineGuide);
+    }
+  }, 3500);
+
   charSpans.forEach((span, idx) => {
     const startTime = idx * stepDuration;
 

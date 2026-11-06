@@ -10,6 +10,7 @@ import { TaskQueueManager, QueuedTask, ConstructionSectionId } from './TaskQueue
 import { SectionCoordinator } from './SectionCoordinator';
 import { CameraController } from '../camera/CameraController';
 import { ConstructionStrategies } from '../construction/ConstructionStrategies';
+import { BlueprintManager } from '../construction/BlueprintManager';
 import { FreestyleAgentState } from '../construction/FreestyleAgentEngine';
 
 export type OrchestratorStage =
@@ -340,6 +341,7 @@ export class AgentOrchestrator {
         const el = document.querySelector<HTMLElement>(t.targetSelector);
         if (el) {
           el.setAttribute('data-build-status', 'assembled');
+          BlueprintManager.cleanupElement(el);
           gsap.set(el, { clearProps: 'all' });
           el.querySelectorAll<HTMLElement>('.build-char-span').forEach((span) => {
             span.style.opacity = '1';
@@ -452,6 +454,7 @@ export class AgentOrchestrator {
 
       // Component successfully assembled
       el.setAttribute('data-build-status', 'assembled');
+      BlueprintManager.cleanupElement(el);
       this.taskQueue.markTaskComplete(task.id);
       state.isWorking = false;
       state.mode = 'COMPLETED';
@@ -825,6 +828,7 @@ export class AgentOrchestrator {
       });
 
       // Clean up any temporary blueprint overlays & guides
+      BlueprintManager.cleanupAll();
       document.querySelectorAll('.blueprint-outline-svg, .char-baseline-guide').forEach((el) => {
         if (el.parentNode) el.parentNode.removeChild(el);
       });
@@ -867,6 +871,7 @@ export class AgentOrchestrator {
       });
 
       // Clean up any temporary blueprint overlays & guides
+      BlueprintManager.cleanupAll();
       document.querySelectorAll('.blueprint-outline-svg, .char-baseline-guide').forEach((el) => {
         if (el.parentNode) el.parentNode.removeChild(el);
       });

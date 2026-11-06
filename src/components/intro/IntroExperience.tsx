@@ -30,12 +30,11 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
   const [currentSection, setCurrentSection] = useState<SectionTimelineConfig>(SECTION_TIMELINES[0]);
   const [progress, setProgress] = useState(0);
   const [speed, setSpeed] = useState(1);
-  const [agents, setAgents] = useState<FreestyleAgentState[]>([]);
   const [isDone, setIsDone] = useState(false);
 
   const orchestratorRef = useRef<AgentOrchestrator | null>(null);
 
-  // 7 curated active agents on desktop, 4 on mobile
+  // 6 curated active agents on desktop, 4 on mobile
   const activeAgents = useRef(isMobile ? MOBILE_AGENT_REGISTRY : AGENT_REGISTRY).current;
 
   const handleSkip = useCallback(() => {
@@ -80,7 +79,11 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
         setProgress(pct);
       },
       onAgentsUpdate: (updatedAgents) => {
-        setAgents(updatedAgents);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('orchestrator:agents', { detail: updatedAgents })
+          );
+        }
       },
       onParticlesUpdate: (particles) => {
         setBurstParticles(particles);
@@ -199,9 +202,8 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
         onSkip={handleSkip}
       />
 
-      {/* 7-Agent Precision Cursor Layer */}
+      {/* 6-Agent Precision Cursor Layer (Isolated zero-overhead DOM rendering) */}
       <AgentCursorLayer
-        agents={agents}
         visible={stage !== 'BOOTING' && stage !== 'CANVAS_INITIALIZED' && !isDone}
       />
     </div>

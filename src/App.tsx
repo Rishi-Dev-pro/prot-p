@@ -91,7 +91,7 @@ export const App: React.FC = () => {
       {/* Desktop Interactive Custom Pointer */}
       <CustomCursor />
 
-      {/* Scripted 20-Agent Website Construction Experience (V5 Autonomous Multi-Stage Choreography) */}
+      {/* Scripted 6-Agent Website Construction Experience (V6 Coordinated Symmetrical Choreography) */}
       {introActive && (
         <IntroExperience
           onComplete={handleIntroComplete}

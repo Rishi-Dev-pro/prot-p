@@ -26,7 +26,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
           </div>
           <div className="flex flex-col">
             <span className="font-display font-semibold text-base tracking-wide text-white">
-              Rishi Kumar Shaw
+              Rishi
             </span>
             <span className="font-mono text-[9px] text-white/40 tracking-wider">
               ENGINEERING STUDIO

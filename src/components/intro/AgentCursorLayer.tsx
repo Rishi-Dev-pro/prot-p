@@ -1,17 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AgentCursor } from './AgentCursor';
 import { FreestyleAgentState } from '../../animations/construction/FreestyleAgentEngine';
 
 interface AgentCursorLayerProps {
-  agents: FreestyleAgentState[];
+  agents?: FreestyleAgentState[];
   visible: boolean;
 }
 
 export const AgentCursorLayer: React.FC<AgentCursorLayerProps> = ({
-  agents,
+  agents: propAgents,
   visible,
 }) => {
+  const [internalAgents, setInternalAgents] = useState<FreestyleAgentState[]>([]);
+
+  useEffect(() => {
+    const handleAgentsUpdate = (e: Event) => {
+      const custom = e as CustomEvent<FreestyleAgentState[]>;
+      if (custom.detail) {
+        setInternalAgents(custom.detail);
+      }
+    };
+
+    window.addEventListener('orchestrator:agents', handleAgentsUpdate);
+    return () => {
+      window.removeEventListener('orchestrator:agents', handleAgentsUpdate);
+    };
+  }, []);
+
   if (!visible) return null;
+
+  const agents = propAgents && propAgents.length > 0 ? propAgents : internalAgents;
 
   // Find collaborating pairs of working agents within 320px of each other
   const activeWorking = agents.filter((a) => a.isWorking);

@@ -78,7 +78,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
             <div className="flex flex-col">
               <span className="font-display font-semibold text-sm tracking-wide text-[#F3F3F5] group-hover:text-white transition-colors">
-                Rishi Kumar Shaw
+                Rishi
               </span>
               <span className="font-mono text-[9px] text-white/40 tracking-wider">
                 ENGINEERING

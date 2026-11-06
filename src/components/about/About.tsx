@@ -2,7 +2,7 @@ import React from 'react';
 import { SectionHeading } from '../common/SectionHeading';
 import { Principles } from './Principles';
 import { EngineeringTimeline } from '../timeline/EngineeringTimeline';
-import { GraduationCap, MapPin, Compass, Terminal } from 'lucide-react';
+import { GraduationCap, MapPin, Compass, Terminal, Briefcase } from 'lucide-react';
 
 export const About: React.FC = () => {
   return (
@@ -31,31 +31,31 @@ export const About: React.FC = () => {
                 <span>RKS // CORE_THESIS</span>
               </div>
 
-              <blockquote className="text-[#F3F3F5] text-base sm:text-lg leading-relaxed font-sans mb-6">
-                “I'm interested in more than making applications work. I enjoy understanding the systems behind them — how software communicates, how intelligence can be integrated into applications, and how seemingly complex interactions can become useful experiences.”
+              <blockquote className="text-[#F3F3F5] text-base sm:text-lg leading-relaxed font-sans mb-5 font-medium">
+                “Understanding systems from the ground up — from component lifecycles and backend architectures to computer vision models and intelligent interfaces.”
               </blockquote>
 
-              <p className="text-[#92939F] text-sm leading-relaxed mb-6 font-sans">
-                My work ranges from full-stack applications and marketplace architectures to computer vision experiments and AI-powered systems.
-              </p>
-
-              <p className="text-[#92939F] text-sm leading-relaxed font-sans">
-                I believe in learning by building, testing assumptions, and continuously improving. Rather than relying on superficial boilerplate, I dissect how systems communicate at the protocol, process, and interface levels.
+              <p className="text-[#92939F] text-sm leading-relaxed font-sans mb-4">
+                Full-stack builder with hands-on experience across the MERN stack, Python, and AI. Focused on deterministic code, empirical testing, and clean software engineering.
               </p>
 
               {/* Verified academic & personal profile tags */}
               <div className="mt-8 pt-6 border-t border-white/10 space-y-3">
                 <div className="flex items-center gap-3 text-xs font-mono text-[#F3F3F5]">
-                  <GraduationCap className="w-4 h-4 text-[#FF414D] shrink-0" />
-                  <span>BCA (MAWT) — Brainware University</span>
+                  <GraduationCap className="w-4 h-4 text-[#34D399] shrink-0" />
+                  <span>BCA (MAWT) — Brainware University (CGPA: 9.60)</span>
+                </div>
+                <div className="flex items-center gap-3 text-xs font-mono text-[#00F0FF]">
+                  <Briefcase className="w-4 h-4 text-[#00F0FF] shrink-0" />
+                  <span>Gameonix — 2× 6-Month Internships (Backend & Marketing)</span>
                 </div>
                 <div className="flex items-center gap-3 text-xs font-mono text-[#92939F]">
                   <MapPin className="w-4 h-4 text-[#B44CFF] shrink-0" />
                   <span>Based in India // Open to Global Engineering Initiatives</span>
                 </div>
                 <div className="flex items-center gap-3 text-xs font-mono text-[#92939F]">
-                  <Compass className="w-4 h-4 text-[#00F0FF] shrink-0" />
-                  <span>Engineering Focus: AI Systems, Full Stack, Computer Vision</span>
+                  <Compass className="w-4 h-4 text-[#FF414D] shrink-0" />
+                  <span>Core Focus: MERN Stack, Python, AI, ML, Computer Vision</span>
                 </div>
               </div>
             </div>

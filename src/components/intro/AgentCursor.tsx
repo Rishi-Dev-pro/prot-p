@@ -31,59 +31,78 @@ export const AgentCursor: React.FC<AgentCursorViewProps> = ({
       {/* Precision Calibration Reticle when actively working / constructing */}
       {isWorking && (
         <div
-          className="absolute -top-2.5 -left-2.5 w-5 h-5 pointer-events-none flex items-center justify-center"
+          className="absolute -top-3 -left-3 w-6 h-6 pointer-events-none flex items-center justify-center"
           style={{ color }}
         >
           {/* Thin circular alignment ring */}
           <span
-            className="absolute inset-0 rounded-full border border-current opacity-70"
+            className="absolute inset-0 rounded-full border border-current opacity-75"
             style={{ borderColor: color }}
           />
           {/* Center reticle dot */}
           <span
-            className="w-1 h-1 rounded-full"
+            className="w-1.5 h-1.5 rounded-full"
             style={{ backgroundColor: color }}
           />
           {/* Subtle crosshair ticks */}
           <span
-            className="absolute -top-1 w-[1px] h-1 bg-current opacity-80"
+            className="absolute -top-1 w-[1px] h-1.5 bg-current opacity-85"
             style={{ backgroundColor: color }}
           />
           <span
-            className="absolute -bottom-1 w-[1px] h-1 bg-current opacity-80"
+            className="absolute -bottom-1 w-[1px] h-1.5 bg-current opacity-85"
             style={{ backgroundColor: color }}
           />
           <span
-            className="absolute -left-1 w-1 h-[1px] bg-current opacity-80"
+            className="absolute -left-1 w-1.5 h-[1px] bg-current opacity-85"
             style={{ backgroundColor: color }}
           />
           <span
-            className="absolute -right-1 w-1 h-[1px] bg-current opacity-80"
+            className="absolute -right-1 w-1.5 h-[1px] bg-current opacity-85"
             style={{ backgroundColor: color }}
           />
         </div>
       )}
 
-      {/* Sleek Razor-Sharp Precision Pointer Arrow */}
+      {/* Precision Engineered Pointer Instrument (+25% scale, dual-contour contrast) */}
       <svg
-        width="18"
-        height="18"
+        width="23"
+        height="23"
         viewBox="0 0 24 24"
         fill="none"
         className="pointer-events-none"
         style={{
           transform: `rotate(${Math.round(angle - 45)}deg)`,
-          transformOrigin: '2px 2px',
-          filter: `drop-shadow(0 2px 4px rgba(0,0,0,0.95)) drop-shadow(0 0 3px ${color}60)`,
+          transformOrigin: '3px 3px',
+          filter: `drop-shadow(0 2px 6px rgba(0,0,0,0.95)) drop-shadow(0 0 5px ${color}50)`,
         }}
       >
+        {/* Outer dark base silhouette for sharp contrast against bright elements */}
+        <path
+          d="M3 3L10.5 21L13.8 13.8L21 10.5L3 3Z"
+          fill="#05060A"
+          stroke="#05060A"
+          strokeWidth="3"
+          strokeLinejoin="round"
+        />
+        {/* Core color body */}
         <path
           d="M3 3L10.5 21L13.8 13.8L21 10.5L3 3Z"
           fill={color}
-          stroke="#090A0F"
-          strokeWidth="1.5"
+          stroke={color}
+          strokeWidth="1"
           strokeLinejoin="round"
         />
+        {/* Crisp interior leading-edge highlight for high contrast on dark themes */}
+        <path
+          d="M3.5 4.5L9.8 18.5L12.5 12.8L18.5 9.8L3.5 4.5Z"
+          fill="none"
+          stroke="rgba(255, 255, 255, 0.45)"
+          strokeWidth="0.8"
+          strokeLinejoin="round"
+        />
+        {/* Precision apex focal glint */}
+        <circle cx="3" cy="3" r="1.2" fill="#FFFFFF" opacity="0.9" />
       </svg>
     </div>
   );

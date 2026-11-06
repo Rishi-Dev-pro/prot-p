@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Terminal as TerminalIcon, X, Maximize2, Minimize2 } from 'lucide-react';
 import { soundEffects } from '../../services/soundEffects';
+import { AGENT_REGISTRY } from '../../data/agents';
+import { SOCIAL_LINKS } from '../../data/navigation';
 
 interface TerminalModalProps {
   isOpen: boolean;
@@ -75,15 +77,17 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({
           type: 'output',
           text: `AVAILABLE COMMANDS:
   help          - Display this command manual
-  whoami        - Print identity profile and background
-  about         - Overview of engineering focus & principles
+  whoami        - Print identity profile and verified background
+  experience    - Professional internships (Gameonix Backend & Marketing)
+  education     - Academic background (Brainware University, CGPA: 9.60)
+  about         - Overview of engineering philosophy & principles
   projects      - List all 6 flagship engineering systems
   open <id>     - Open project detail (ahi, aether-os, pirate-civ, etc.)
   compare       - Launch side-by-side project comparison matrix
   stack         - Output technical capabilities and taxonomy
   architecture  - System topology and distributed engine specs
-  agents        - Status of 20 simulated autonomous cluster nodes
-  contact       - Transmission channels and verified email
+  agents        - Status of 6 active coordinated engineering nodes
+  contact       - Transmission channels, verified phone & email
   clear         - Wipe terminal history
   exit          - Close interactive terminal session`,
         });
@@ -93,11 +97,42 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({
         newHistory.push({
           id: Date.now() + 1,
           type: 'output',
-          text: `IDENTITY: Rishi Kumar Shaw
+          text: `IDENTITY: Rishi Kumar Shaw (Navbar: Rishi)
+ROLE: Full-Stack Developer | AI Systems Builder
 LOCATION: India
-EDUCATION: BCA (MAWT), Brainware University
-ROLE: Full-Stack Developer | AI Systems Builder | Experimental Engineer
-PRIMARY FOCUS: Agentic AI, Computer Vision, Distributed Systems, High-Concurrency Web`,
+EDUCATION: BCA (MAWT), Brainware University (CGPA: 9.60)
+EXPERIENCE: Gameonix — #1 Esports Hosting App (2× 6-Month Internships)
+PRIMARY FOCUS: MERN Stack, Python, Artificial Intelligence, Machine Learning, Computer Vision`,
+        });
+        break;
+
+      case 'experience':
+      case 'internships':
+        newHistory.push({
+          id: Date.now() + 1,
+          type: 'output',
+          text: `PROFESSIONAL EXPERIENCE:
+  [1] Gameonix (#1 Esports Hosting App)
+      Role     : Backend Developer Intern
+      Duration : 6 Months
+      Focus    : Server infrastructure and backend development for tournament workflows
+
+  [2] Gameonix (#1 Esports Hosting App)
+      Role     : Marketing Intern
+      Duration : 6 Months
+      Focus    : Community outreach, player engagement, and esports event marketing`,
+        });
+        break;
+
+      case 'education':
+        newHistory.push({
+          id: Date.now() + 1,
+          type: 'output',
+          text: `ACADEMIC CREDENTIALS:
+  Institution : Brainware University
+  Course      : Bachelor of Computer Applications — BCA (MAWT)
+  Grade       : Cumulative Grade Point Average (CGPA): 9.60 (Verified)
+  Curriculum  : Data Structures, Database Architecture, Software Engineering, Web Technology`,
         });
         break;
 
@@ -198,11 +233,13 @@ Type "open <id>" or directly type "ahi", "aether", "pirate" to view details.`,
         newHistory.push({
           id: Date.now() + 1,
           type: 'output',
-          text: `CORE TECHNOLOGY MATRIX:
-  [Frontend]    TypeScript, React 19, Tailwind CSS, GSAP, Canvas, WebGL, Vite
-  [Backend]     Node.js, Fastify, Express, Python, FastAPI, WebSockets
-  [AI / Vision] PyTorch, ONNX Runtime, YOLOv8n, MediaPipe, LangChain, SQLite-vec
-  [Infra / DB]  PostgreSQL, Redis, Docker, Git, Linux, Supabase`,
+          text: `CORE TECHNOLOGY PROFILE:
+  [Core Stack]       MERN (MongoDB, Express.js, React, Node.js), Python, AI, ML, Computer Vision
+  [Frontend & 3D]    React, Three.js, React Three Fiber, TypeScript, Tailwind CSS, Vite
+  [Backend Services] Node.js, Express.js, RESTful Architecture, WebSockets
+  [Persistence]      MongoDB, PostgreSQL, MySQL
+  [AI & Dev Labs]    Python, Google Colab, Kaggle, OpenCV, YOLOv8, Git, GitHub
+  [Exploring Next]   Quantum Computing, Advanced Machine Learning, Advanced Computer Vision`,
         });
         break;
 
@@ -210,35 +247,42 @@ Type "open <id>" or directly type "ahi", "aether", "pirate" to view details.`,
         newHistory.push({
           id: Date.now() + 1,
           type: 'output',
-          text: `SYSTEM TOPOLOGY:
-  [Client Layer]       Vite + React SPA -> WebSocket stream
-  [Orchestrator Hub]   Event-driven distributed coordinator (6 node cluster)
-  [Edge Vision]        Quantized local ONNX model pipeline (sub-35ms)
-  [Persistence]        PostgreSQL primary + Redis ephemeral session cache`,
+          text: `SYSTEM TOPOLOGY & AGENT ENVIRONMENT:
+  [Client Layer]       React 19 SPA + Direct GPU Hardware Layer
+  [Orchestrator Hub]   Deterministic State Machine (6 Coordinated Agents)
+  [3D Depth Layer]     Three.js WebGL spatial grid + dynamic pulse ripples
+  [Kinematics]         Critically damped deceleration cone (130px, 6.2–7.6 px/f)
+  [Lifecycle Engine]   Strict construction progression with automatic outline cleanup`,
         });
         break;
 
-      case 'agents':
+      case 'agents': {
+        const agentLines = AGENT_REGISTRY.map(
+          (a) => `  [${a.id}] ${a.name.padEnd(16)} // ${a.role.padEnd(36)} [SYNCHRONIZED]`
+        ).join('\n');
         newHistory.push({
           id: Date.now() + 1,
           type: 'output',
-          text: `AUTONOMOUS AGENT CLUSTER (20 NODES):
-  [AGENT_01..05] Nav, Identity, Hero Typography, Graphics, Interactions [IDLE/READY]
-  [AGENT_06..10] About, Content, Layout, Projects Matrix, Components     [IDLE/READY]
-  [AGENT_11..15] Principles, Technology, Visual, Architecture, Graph     [IDLE/READY]
-  [AGENT_16..20] Contact, Edge AI, Typography, Motion, Orchestrator     [IDLE/READY]
-  ALL NODES SYNCHRONIZED // LATENCY: 0.2ms`,
+          text: `AUTONOMOUS AGENT ORCHESTRATION CLUSTER (06 NODES):
+${agentLines}
+  ACTIVE AGENTS      : 06 Desktop (4 Mobile)
+  FORMATION GEOMETRY : Symmetrical Hexagonal Orbit (R: 290px)
+  STATE MACHINE      : HIDDEN -> ASSIGNED -> TRAVELLING -> ARRIVED -> BLUEPRINT -> BUILD -> COMPLETE
+  OUTLINE LIFECYCLE  : Guaranteed dissolution & DOM garbage collection`,
         });
         break;
+      }
 
       case 'contact':
         newHistory.push({
           id: Date.now() + 1,
           type: 'output',
-          text: `TRANSMISSION CHANNELS:
-  Email:    rishikumarshaw777@gmail.com
-  GitHub:   https://github.com/Rishi-Dev-pro
-  LinkedIn: https://linkedin.com/in/rishi-kumar-shaw`,
+          text: `VERIFIED TRANSMISSION CHANNELS:
+  Name:     ${SOCIAL_LINKS.name} (Navbar: ${SOCIAL_LINKS.navbarName})
+  Email:    ${SOCIAL_LINKS.email}
+  Phone:    ${SOCIAL_LINKS.phoneFormatted}
+  GitHub:   ${SOCIAL_LINKS.github}
+  LinkedIn: ${SOCIAL_LINKS.linkedin}`,
         });
         break;
 

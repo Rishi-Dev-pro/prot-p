@@ -60,7 +60,7 @@ export const Hero: React.FC<HeroProps> = ({
             data-build-status="unbuilt"
             className="mt-5 text-[#92939F] text-base sm:text-lg leading-relaxed max-w-2xl font-sans"
           >
-            I'm <strong className="text-[#F3F3F5] font-semibold">Rishi Kumar Shaw</strong> — a developer exploring the intersection of software engineering, artificial intelligence, computer vision, and intelligent systems. I build ideas into working software, experiment with unconventional interfaces, and enjoy understanding how complex systems work.
+            I'm <strong className="text-[#F3F3F5] font-semibold">Rishi Kumar Shaw</strong> — a developer focused on full-stack systems, computer vision, and AI applications. Building software through practical experiments, clean architecture, and continuous learning.
           </p>
 
           {/* Live Technical Information Area (Part D.2) */}

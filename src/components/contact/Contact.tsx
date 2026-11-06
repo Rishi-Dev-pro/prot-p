@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SectionHeading } from '../common/SectionHeading';
 import { Button } from '../common/Button';
 import { SOCIAL_LINKS } from '../../data/navigation';
-import { Mail, Copy, Check, Terminal, Send, ArrowUp } from 'lucide-react';
+import { Mail, Copy, Check, Terminal, Send, ArrowUp, Phone } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from '../common/Icons';
 
 export const Contact: React.FC = () => {
@@ -56,15 +56,18 @@ export const Contact: React.FC = () => {
                 <span>DIRECT_TRANSMISSION_CHANNELS</span>
               </div>
 
-              {/* Email Copy Card */}
-              <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02] mb-6">
+              {/* Email Card with functional mailto */}
+              <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02] mb-3">
                 <span className="font-mono text-[10px] text-white/40 uppercase block mb-1">
                   OFFICIAL CONTACT INBOX
                 </span>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono text-sm sm:text-base text-[#F3F3F5] truncate select-all">
+                  <a
+                    href={`mailto:${SOCIAL_LINKS.email}`}
+                    className="font-mono text-sm sm:text-base text-[#F3F3F5] hover:text-[#FF414D] transition-colors truncate"
+                  >
                     {SOCIAL_LINKS.email}
-                  </span>
+                  </a>
                   <button
                     onClick={copyEmail}
                     className="p-2 rounded-lg border border-white/10 bg-white/5 hover:bg-[#FF414D] hover:border-[#FF414D] hover:text-white transition-all text-[#92939F] cursor-pointer"
@@ -76,6 +79,23 @@ export const Contact: React.FC = () => {
                       <Copy className="w-4 h-4" />
                     )}
                   </button>
+                </div>
+              </div>
+
+              {/* Phone Card with functional tel */}
+              <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02] mb-6">
+                <span className="font-mono text-[10px] text-white/40 uppercase block mb-1">
+                  DIRECT PHONE LINE
+                </span>
+                <div className="flex items-center justify-between gap-2">
+                  <a
+                    href={`tel:${SOCIAL_LINKS.phone}`}
+                    className="flex items-center gap-2 font-mono text-sm sm:text-base text-[#F3F3F5] hover:text-[#00FF88] transition-colors"
+                  >
+                    <Phone className="w-3.5 h-3.5 text-[#00FF88]" />
+                    <span>{SOCIAL_LINKS.phoneFormatted}</span>
+                  </a>
+                  <span className="text-[10px] font-mono text-white/40">VOICE / CELL</span>
                 </div>
               </div>
 
@@ -96,7 +116,7 @@ export const Contact: React.FC = () => {
                     <span className="font-mono text-xs text-[#F3F3F5]">GITHUB</span>
                   </div>
                   <span className="font-mono text-[10px] text-white/40 group-hover:text-white">
-                    @rishikumarshaw ↗
+                    @Rishi-Dev-pro ↗
                   </span>
                 </a>
 
@@ -111,7 +131,7 @@ export const Contact: React.FC = () => {
                     <span className="font-mono text-xs text-[#F3F3F5]">LINKEDIN</span>
                   </div>
                   <span className="font-mono text-[10px] text-white/40 group-hover:text-white">
-                    in/rishi-kumar-shaw ↗
+                    in/rishi-shaw ↗
                   </span>
                 </a>
               </div>

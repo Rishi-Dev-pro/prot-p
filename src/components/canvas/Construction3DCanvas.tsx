@@ -34,7 +34,7 @@ export const Construction3DCanvas: React.FC<Construction3DCanvasProps> = ({ stag
         antialias: true,
         powerPreference: 'high-performance',
       });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
       renderer.setSize(width, height);
       renderer.setClearColor(0x000000, 0);
       container.appendChild(renderer.domElement);
@@ -130,25 +130,27 @@ export const Construction3DCanvas: React.FC<Construction3DCanvasProps> = ({ stag
     }
     const activeRipples: SpatialRipple[] = [];
 
+    // Pre-allocated shared geometry for all spatial ripples
+    const rippleSegments = 32;
+    const sharedRippleGeometry = new THREE.BufferGeometry();
+    const ripplePts = new Float32Array((rippleSegments + 1) * 3);
+    for (let i = 0; i <= rippleSegments; i++) {
+      const theta = (i / rippleSegments) * Math.PI * 2;
+      ripplePts[i * 3] = Math.cos(theta);
+      ripplePts[i * 3 + 1] = Math.sin(theta);
+      ripplePts[i * 3 + 2] = 0;
+    }
+    sharedRippleGeometry.setAttribute('position', new THREE.BufferAttribute(ripplePts, 3));
+
     const createRipple = (worldX: number, worldY: number, colorHex: number) => {
       if (activeRipples.length > 8) return; // Cap simultaneous ripples
-      const segments = 32;
-      const geo = new THREE.BufferGeometry();
-      const pts = new Float32Array((segments + 1) * 3);
-      for (let i = 0; i <= segments; i++) {
-        const theta = (i / segments) * Math.PI * 2;
-        pts[i * 3] = Math.cos(theta);
-        pts[i * 3 + 1] = Math.sin(theta);
-        pts[i * 3 + 2] = 0;
-      }
-      geo.setAttribute('position', new THREE.BufferAttribute(pts, 3));
       const mat = new THREE.LineBasicMaterial({
         color: colorHex,
         transparent: true,
         opacity: 0.65,
         blending: THREE.AdditiveBlending,
       });
-      const loop = new THREE.LineLoop(geo, mat);
+      const loop = new THREE.LineLoop(sharedRippleGeometry, mat);
       loop.position.set(worldX, worldY, 0);
       scene.add(loop);
 
@@ -220,7 +222,6 @@ export const Construction3DCanvas: React.FC<Construction3DCanvasProps> = ({ stag
         const progress = r.life / r.maxLife;
         if (progress >= 1) {
           scene.remove(r.mesh);
-          r.mesh.geometry.dispose();
           (r.mesh.material as THREE.Material).dispose();
           activeRipples.splice(i, 1);
         } else {
@@ -255,9 +256,9 @@ export const Construction3DCanvas: React.FC<Construction3DCanvasProps> = ({ stag
 
       activeRipples.forEach((r) => {
         scene.remove(r.mesh);
-        r.mesh.geometry.dispose();
         (r.mesh.material as THREE.Material).dispose();
       });
+      sharedRippleGeometry.dispose();
 
       scene.remove(particles);
       particleGeometry.dispose();

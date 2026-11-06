@@ -15,8 +15,11 @@ export const NAV_ITEMS: NavItem[] = [
 ];
 
 export const SOCIAL_LINKS = {
-  github: 'https://github.com/rishikumarshaw',
-  email: 'rishi.shaw.dev@gmail.com',
-  linkedin: 'https://linkedin.com/in/rishi-kumar-shaw',
+  name: 'Rishi Kumar Shaw',
+  navbarName: 'Rishi',
+  github: 'https://github.com/Rishi-Dev-pro/',
+  email: 'rishishaw23022006@gmail.com',
+  phone: '6291169468',
+  phoneFormatted: '+91 6291169468',
+  linkedin: 'https://www.linkedin.com/in/rishi-shaw-389800389/',
 };
-
