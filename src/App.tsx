@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { GridBackground } from './components/common/GridBackground';
+import { Construction3DCanvas } from './components/canvas/Construction3DCanvas';
 import { CustomCursor } from './components/common/CustomCursor';
 import { Navbar } from './components/navigation/Navbar';
 import { Hero } from './components/hero/Hero';
@@ -83,6 +84,9 @@ export const App: React.FC = () => {
     <div className="relative min-h-screen bg-[#08090D] text-[#F3F3F5] selection:bg-[#FF414D] selection:text-white overflow-x-hidden font-sans">
       {/* Background Grid Canvas */}
       <GridBackground />
+
+      {/* Atmospheric Three.js 3D Construction & Spatial Depth Layer */}
+      <Construction3DCanvas />
 
       {/* Desktop Interactive Custom Pointer */}
       <CustomCursor />

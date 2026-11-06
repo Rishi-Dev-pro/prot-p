@@ -155,7 +155,11 @@ export const EngineeringTimeline: React.FC = () => {
       className="mt-12 p-6 sm:p-8 rounded-2xl border border-white/10 bg-[#0C0D12]/90 backdrop-blur-xl relative overflow-hidden shadow-2xl"
     >
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6 mb-8">
+      <div
+        data-build-target="timeline-heading"
+        data-build-status="unbuilt"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6 mb-8"
+      >
         <div>
           <div className="flex items-center gap-2 mb-1.5 text-xs font-mono text-[#00F0FF]">
             <Calendar className="w-3.5 h-3.5" />
@@ -195,6 +199,8 @@ export const EngineeringTimeline: React.FC = () => {
           return (
             <div
               key={milestone.id}
+              data-build-target={`timeline-${milestone.id}`}
+              data-build-status="unbuilt"
               className="relative group transition-all duration-300"
             >
               {/* Spine Node Dot */}

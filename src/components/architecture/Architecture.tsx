@@ -37,13 +37,15 @@ export const Architecture: React.FC = () => {
   return (
     <section id="architecture" className="relative py-24 sm:py-32 border-t border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeading
-          number="03"
-          category="SYSTEM ARCHITECTURE"
-          title="HOW I THINK ABOUT"
-          titleAccent="SYSTEMS."
-          subtitle="Software is not an isolated script. It is an interdependent ecosystem of reactive viewports, fault-tolerant runtimes, persistent schemas, and edge telemetry."
-        />
+        <div data-build-target="architecture-heading" data-build-status="unbuilt">
+          <SectionHeading
+            number="03"
+            category="SYSTEM ARCHITECTURE"
+            title="HOW I THINK ABOUT"
+            titleAccent="SYSTEMS."
+            subtitle="Software is not an isolated script. It is an interdependent ecosystem of reactive viewports, fault-tolerant runtimes, persistent schemas, and edge telemetry."
+          />
+        </div>
 
         {/* Mobile Domain Selector Tabs */}
         <div className="flex sm:hidden overflow-x-auto pb-4 mb-6 gap-2 no-scrollbar">

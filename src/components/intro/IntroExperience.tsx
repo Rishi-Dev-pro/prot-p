@@ -188,18 +188,12 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
 
       {/* Design Workspace Blueprint Overlay (Active Construction) */}
       {(stage === 'CONSTRUCTION_ACTIVE' || stage === 'SECTION_TRANSITION') && (
-        <ConstructionOverlay
-          currentSection={currentSection}
-          progress={progress}
-          activeAgentsCount={activeAgents.length}
-        />
+        <ConstructionOverlay />
       )}
 
-      {/* Floating HUD Telemetry and Speed/Skip Controls */}
+      {/* Floating Speed/Skip Controls */}
       <ConstructionTelemetry
-        currentSection={currentSection}
         progress={progress}
-        activeAgentsCount={activeAgents.length}
         speed={speed}
         onToggleSpeed={handleToggleSpeed}
         onSkip={handleSkip}

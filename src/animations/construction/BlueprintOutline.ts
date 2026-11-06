@@ -72,6 +72,20 @@ export function createBlueprintOutline(
   svg.appendChild(rectPath);
   document.body.appendChild(svg);
 
+  // Dispatch spatial pulse for Three.js 3D depth ripple
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(
+      new CustomEvent('three:spatial-pulse', {
+        detail: {
+          x: rect.left + width / 2,
+          y: rect.top + height / 2,
+          color: accentColor,
+          intensity: 0.8,
+        },
+      })
+    );
+  }
+
   // Animate perimeter drawing
   const tl = gsap.timeline({
     onUpdate: () => {

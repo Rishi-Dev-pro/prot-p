@@ -23,18 +23,18 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
 
   return (
     <div className={`mb-12 md:mb-16 ${isCenter ? 'text-center max-w-3xl mx-auto' : 'max-w-4xl'} ${className}`}>
-      {/* Technical prefix */}
-      <div className={`inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[#FF414D] mb-3 ${isCenter ? 'justify-center' : ''}`}>
-        <span className="w-1.5 h-1.5 bg-[#FF414D] rounded-full glow-accent" />
+      {/* Editorial category prefix */}
+      <div className={`inline-flex items-center gap-2.5 font-mono text-xs uppercase tracking-widest text-[#FF414D] mb-3.5 ${isCenter ? 'justify-center' : ''}`}>
+        <span className="w-1.5 h-1.5 bg-[#FF414D] rounded-full shadow-[0_0_8px_#FF414D]" />
         <span className="text-white/40">// {number}</span>
-        <span>{category}</span>
+        <span className="font-semibold text-white/80">{category}</span>
       </div>
 
-      {/* Primary heading */}
-      <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold uppercase tracking-tight text-[#F3F3F5] leading-tight">
-        {title}{' '}
+      {/* Primary heading - High-Contrast Editorial Typography */}
+      <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-extrabold uppercase tracking-tight text-[#F3F3F5] leading-tight">
+        <span>{title}</span>{' '}
         {titleAccent && (
-          <span className="text-outline hover:text-[#FF414D]/20 transition-colors">
+          <span className="text-white/40 font-light transition-colors hover:text-white/70">
             {titleAccent}
           </span>
         )}
@@ -49,13 +49,9 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
 
       {/* Subtle technical separator bar */}
       <div className={`mt-6 flex items-center gap-3 ${isCenter ? 'justify-center' : ''}`}>
-        <div className="h-[1px] w-12 bg-[#FF414D]" />
+        <div className="h-[1px] w-12 bg-[#FF414D]/60" />
         <div className="h-[1px] w-24 bg-white/10" />
-        <span className="font-mono text-[10px] text-white/30 tracking-widest uppercase">
-          SYS_SEC_{number}
-        </span>
       </div>
     </div>
   );
 };
-

@@ -133,7 +133,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             size="sm"
             onClick={() => onInspect(project)}
             className="w-full sm:w-auto"
-            techCode="SPEC"
           >
             INSPECT FULL ARCHITECTURE
           </Button>

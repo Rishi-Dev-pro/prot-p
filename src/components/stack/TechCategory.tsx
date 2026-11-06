@@ -8,7 +8,11 @@ interface TechCategoryProps {
 
 export const TechCategory: React.FC<TechCategoryProps> = ({ category }) => {
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#101116]/80 backdrop-blur-md p-6 sm:p-7 hover:border-white/20 transition-all duration-300 flex flex-col justify-between group">
+    <div
+      data-build-target={`stack-${category.code.toLowerCase()}`}
+      data-build-status="unbuilt"
+      className="rounded-2xl border border-white/10 bg-[#101116]/80 backdrop-blur-md p-6 sm:p-7 hover:border-white/20 transition-all duration-300 flex flex-col justify-between group"
+    >
       <div>
         {/* Category Header */}
         <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">

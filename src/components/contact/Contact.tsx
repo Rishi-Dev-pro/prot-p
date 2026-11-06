@@ -33,21 +33,23 @@ export const Contact: React.FC = () => {
   return (
     <footer id="contact" className="relative pt-24 sm:pt-32 pb-12 border-t border-white/10 bg-[#08090D]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeading
-          number="06"
-          category="INITIATE PROTOCOL"
-          title="HAVE SOMETHING"
-          titleAccent="INTERESTING TO BUILD?"
-          subtitle="I'm always interested in exploring ambitious ideas, experimenting with emerging technologies, and building meaningful software."
-        />
+        <div data-build-target="contact-heading" data-build-status="unbuilt">
+          <SectionHeading
+            number="06"
+            category="INITIATE PROTOCOL"
+            title="HAVE SOMETHING"
+            titleAccent="INTERESTING TO BUILD?"
+            subtitle="I'm always interested in exploring ambitious ideas, experimenting with emerging technologies, and building meaningful software."
+          />
+        </div>
 
-        <div
-          data-build-target="contact"
-          data-build-status="unbuilt"
-          className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-20"
-        >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-20">
           {/* Direct channels & Quick Connect */}
-          <div className="lg:col-span-5 space-y-6">
+          <div
+            data-build-target="contact-channels"
+            data-build-status="unbuilt"
+            className="lg:col-span-5 space-y-6"
+          >
             <div className="p-6 sm:p-8 rounded-2xl border border-white/10 bg-[#101116]/80 backdrop-blur-md">
               <div className="flex items-center gap-2 mb-6 font-mono text-xs text-[#FF414D]">
                 <Terminal className="w-4 h-4" />
@@ -102,51 +104,53 @@ export const Contact: React.FC = () => {
                   href={SOCIAL_LINKS.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between p-3.5 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] hover:border-[#B44CFF]/40 transition-all group"
+                  className="flex items-center justify-between p-3.5 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] hover:border-[#00F0FF]/40 transition-all group"
                 >
                   <div className="flex items-center gap-3">
-                    <LinkedinIcon className="w-4 h-4 text-[#B44CFF]" />
+                    <LinkedinIcon className="w-4 h-4 text-[#00F0FF]" />
                     <span className="font-mono text-xs text-[#F3F3F5]">LINKEDIN</span>
                   </div>
                   <span className="font-mono text-[10px] text-white/40 group-hover:text-white">
-                    /in/rishi-kumar-shaw ↗
+                    in/rishi-kumar-shaw ↗
                   </span>
                 </a>
               </div>
             </div>
           </div>
 
-          {/* Interactive Message Dispatch Terminal */}
-          <div className="lg:col-span-7">
-            <div className="p-6 sm:p-8 rounded-2xl border border-white/10 bg-[#101116]/80 backdrop-blur-md">
+          {/* Interactive Transmission Form */}
+          <div
+            data-build-target="contact-form"
+            data-build-status="unbuilt"
+            className="lg:col-span-7"
+          >
+            <div className="p-6 sm:p-8 rounded-2xl border border-white/10 bg-[#101116]/80 backdrop-blur-md relative overflow-hidden">
               <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
-                <div className="flex items-center gap-2 font-mono text-xs text-white/60">
-                  <Send className="w-3.5 h-3.5 text-[#00FF88]" />
-                  <span>TRANSMIT_DISPATCH_MESSAGE</span>
-                </div>
-                <span className="font-mono text-[10px] text-white/30">
-                  TLS_ENCRYPTED_FORM
+                <span className="font-mono text-xs text-white/70">
+                  DISPATCH_FORM // DIRECT_COMMUNICATION
+                </span>
+                <span className="font-mono text-[10px] text-[#00FF88] flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00FF88] animate-pulse" />
+                  GATEWAY READY
                 </span>
               </div>
 
               {msgSent ? (
-                <div className="p-8 text-center space-y-3 bg-[#00FF88]/5 border border-[#00FF88]/30 rounded-xl animate-in zoom-in-95 duration-200">
-                  <div className="w-10 h-10 rounded-full bg-[#00FF88]/20 text-[#00FF88] flex items-center justify-center mx-auto">
-                    <Check className="w-5 h-5" />
-                  </div>
+                <div className="p-8 text-center space-y-3 bg-[#00FF88]/5 border border-[#00FF88]/20 rounded-xl animate-in fade-in duration-300">
+                  <Check className="w-8 h-8 text-[#00FF88] mx-auto" />
                   <h4 className="font-display font-bold text-lg text-white">
-                    TRANSMISSION LOGGED
+                    TRANSMISSION DISPATCHED
                   </h4>
-                  <p className="font-mono text-xs text-[#92939F] max-w-md mx-auto">
-                    Message synthesized into local dispatch queue. Direct response will be routed to your email address.
+                  <p className="font-mono text-xs text-white/60">
+                    Your message packet has been routed. I will review and reply promptly.
                   </p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="font-mono text-[10px] uppercase text-white/50 tracking-wider">
-                        YOUR_NAME // IDENTIFIER
+                    <div>
+                      <label className="block font-mono text-[10px] text-white/50 uppercase mb-1">
+                        YOUR NAME / CALLSIGN
                       </label>
                       <input
                         type="text"
@@ -157,14 +161,14 @@ export const Contact: React.FC = () => {
                         className="w-full px-4 py-2.5 rounded-lg border border-white/10 bg-black/40 text-sm font-sans text-white focus:border-[#FF414D] focus:outline-none focus:ring-1 focus:ring-[#FF414D] transition-colors"
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="font-mono text-[10px] uppercase text-white/50 tracking-wider">
-                        CONTACT_EMAIL // RETURN_ADDRESS
+                    <div>
+                      <label className="block font-mono text-[10px] text-white/50 uppercase mb-1">
+                        RETURN ADDRESS / EMAIL
                       </label>
                       <input
                         type="email"
                         required
-                        placeholder="alex@domain.io"
+                        placeholder="alex@domain.com"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         className="w-full px-4 py-2.5 rounded-lg border border-white/10 bg-black/40 text-sm font-sans text-white focus:border-[#FF414D] focus:outline-none focus:ring-1 focus:ring-[#FF414D] transition-colors"
@@ -172,9 +176,9 @@ export const Contact: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="font-mono text-[10px] uppercase text-white/50 tracking-wider">
-                      MESSAGE_PAYLOAD // PROJECT_SPEC
+                  <div>
+                    <label className="block font-mono text-[10px] text-white/50 uppercase mb-1">
+                      MESSAGE SPECIFICATION
                     </label>
                     <textarea
                       required
@@ -190,7 +194,7 @@ export const Contact: React.FC = () => {
                     <span className="font-mono text-[10px] text-white/30">
                       STATUS: BUFFER_READY
                     </span>
-                    <Button type="submit" variant="primary" size="md" techCode="SEND">
+                    <Button type="submit" variant="primary" size="md">
                       TRANSMIT MESSAGE
                     </Button>
                   </div>
@@ -201,14 +205,18 @@ export const Contact: React.FC = () => {
         </div>
 
         {/* Master Footer Terminal Metadata */}
-        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-[#92939F]">
+        <div
+          data-build-target="contact-footer"
+          data-build-status="unbuilt"
+          className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-[#92939F]"
+        >
           <div className="flex flex-col sm:flex-row items-center gap-3">
             <span className="text-[#F3F3F5] font-semibold">
               DESIGNED & ENGINEERED BY RISHI KUMAR SHAW.
             </span>
             <span className="hidden sm:inline text-white/20">|</span>
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#00FF88] glow-accent" />
+              <span className="w-2 h-2 rounded-full bg-[#00FF88] shadow-[0_0_8px_#00FF88]" />
               <span className="text-[#00FF88]">SYSTEM STATUS: ONLINE.</span>
             </div>
           </div>
@@ -217,7 +225,7 @@ export const Contact: React.FC = () => {
             <span className="text-[10px] text-white/40">LOC: INDIA // 2026</span>
             <button
               onClick={scrollToTop}
-              className="p-2 rounded border border-white/10 hover:border-white/30 text-white transition-colors cursor-pointer"
+              className="p-2 rounded-lg border border-white/10 hover:border-white/30 text-white transition-colors cursor-pointer"
               title="Return to Top"
             >
               <ArrowUp className="w-3.5 h-3.5" />

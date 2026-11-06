@@ -62,12 +62,12 @@ export const About: React.FC = () => {
           </div>
 
           {/* Right Column: Architectural Principles */}
-          <div
-            data-build-target="about-principles"
-            data-build-status="unbuilt"
-            className="lg:col-span-7"
-          >
-            <div className="flex items-center justify-between mb-6">
+          <div className="lg:col-span-7">
+            <div
+              data-build-target="about-principles-heading"
+              data-build-status="unbuilt"
+              className="flex items-center justify-between mb-6"
+            >
               <span className="font-mono text-xs uppercase tracking-wider text-white/50">
                 CORE ARCHITECTURAL AXIOMS
               </span>
@@ -86,4 +86,3 @@ export const About: React.FC = () => {
     </section>
   );
 };
-

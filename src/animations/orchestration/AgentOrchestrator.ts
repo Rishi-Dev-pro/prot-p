@@ -128,8 +128,8 @@ export class AgentOrchestrator {
 
     this.agentsData.forEach((agent, idx) => {
       const entryPos = entryPositions[idx % entryPositions.length];
-      const speed = 10.5 + (idx % 3) * 1.5;
-      const agility = 0.16 + (idx % 2) * 0.04;
+      const speed = 6.2 + (idx % 3) * 0.7; // Slower, highly controlled precision speed
+      const agility = 0.11 + (idx % 2) * 0.02; // Critically damped acceleration curve
 
       this.agentStates.set(agent.id, {
         x: entryPos.x,
@@ -219,7 +219,7 @@ export class AgentOrchestrator {
       );
     }, 6.0);
 
-    // ---------------- 6. SECTION 1: HERO & NAVIGATION (7.4s -> 13.5s) ----------------
+    // ---------------- 6. SECTION 1: HERO & NAVIGATION (7.4s -> 14.5s) ----------------
     this.masterTimeline.add(() => {
       this.setStage('CONSTRUCTION_ACTIVE');
       if (typeof document !== 'undefined') {
@@ -229,7 +229,7 @@ export class AgentOrchestrator {
       this.dispatchSectionTasks('hero');
     }, 7.4);
 
-    // ---------------- 7. SECTION 2: ABOUT & PRINCIPLES (13.5s -> 18.0s) ----------------
+    // ---------------- 7. SECTION 2: ABOUT & PRINCIPLES (14.5s -> 20.5s) ----------------
     this.masterTimeline.add(() => {
       this.setStage('SECTION_TRANSITION');
       this.completeRemainingSectionTasks('hero');
@@ -242,9 +242,9 @@ export class AgentOrchestrator {
         if (this.isDestroyed || this.isCompleted) return;
         this.dispatchSectionTasks('about');
       }, 750 / this.speedMultiplier);
-    }, 13.5);
+    }, 14.5);
 
-    // ---------------- 8. SECTION 3: ENGINEERING TIMELINE (18.0s -> 22.0s) ----------------
+    // ---------------- 8. SECTION 3: ENGINEERING TIMELINE (20.5s -> 26.5s) ----------------
     this.masterTimeline.add(() => {
       this.setStage('SECTION_TRANSITION');
       this.completeRemainingSectionTasks('about');
@@ -256,9 +256,9 @@ export class AgentOrchestrator {
         if (this.isDestroyed || this.isCompleted) return;
         this.dispatchSectionTasks('timeline');
       }, 750 / this.speedMultiplier);
-    }, 18.0);
+    }, 20.5);
 
-    // ---------------- 9. SECTION 4: FLAGSHIP PROJECTS (22.0s -> 29.5s) ----------------
+    // ---------------- 9. SECTION 4: FLAGSHIP PROJECTS (26.5s -> 34.5s) ----------------
     this.masterTimeline.add(() => {
       this.setStage('SECTION_TRANSITION');
       this.completeRemainingSectionTasks('timeline');
@@ -270,9 +270,9 @@ export class AgentOrchestrator {
         if (this.isDestroyed || this.isCompleted) return;
         this.dispatchSectionTasks('projects');
       }, 750 / this.speedMultiplier);
-    }, 22.0);
+    }, 26.5);
 
-    // ---------------- 10. SECTION 5: ARCHITECTURE TOPOLOGY (29.5s -> 34.0s) ----------------
+    // ---------------- 10. SECTION 5: ARCHITECTURE TOPOLOGY (34.5s -> 39.5s) ----------------
     this.masterTimeline.add(() => {
       this.setStage('SECTION_TRANSITION');
       this.completeRemainingSectionTasks('projects');
@@ -284,9 +284,9 @@ export class AgentOrchestrator {
         if (this.isDestroyed || this.isCompleted) return;
         this.dispatchSectionTasks('architecture');
       }, 750 / this.speedMultiplier);
-    }, 29.5);
+    }, 34.5);
 
-    // ---------------- 11. SECTION 6: TECH STACK & EXPERIMENTS (34.0s -> 38.0s) ----------------
+    // ---------------- 11. SECTION 6: TECH STACK & EXPERIMENTS (39.5s -> 45.5s) ----------------
     this.masterTimeline.add(() => {
       this.setStage('SECTION_TRANSITION');
       this.completeRemainingSectionTasks('architecture');
@@ -299,9 +299,9 @@ export class AgentOrchestrator {
         this.dispatchSectionTasks('stack');
         this.dispatchSectionTasks('experiments');
       }, 750 / this.speedMultiplier);
-    }, 34.0);
+    }, 39.5);
 
-    // ---------------- 12. SECTION 7: COMMS & CONTACT (38.0s -> 41.0s) ----------------
+    // ---------------- 12. SECTION 7: COMMS & CONTACT (45.5s -> 50.0s) ----------------
     this.masterTimeline.add(() => {
       this.setStage('SECTION_TRANSITION');
       this.completeRemainingSectionTasks('stack');
@@ -314,22 +314,22 @@ export class AgentOrchestrator {
         if (this.isDestroyed || this.isCompleted) return;
         this.dispatchSectionTasks('contact');
       }, 750 / this.speedMultiplier);
-    }, 38.0);
+    }, 45.5);
 
-    // ---------------- 13. FINAL_REVEAL: RETURN TO APEX (41.0s -> 43.5s) ----------------
+    // ---------------- 13. FINAL_REVEAL: RETURN TO APEX (50.0s -> 52.5s) ----------------
     this.masterTimeline.add(() => {
       this.setStage('FINAL_REVEAL');
       this.completeRemainingSectionTasks('contact');
       this.sectionCoordinator.notifySectionCompletion('contact');
       this.cameraController.returnToTop();
-    }, 41.0);
+    }, 50.0);
 
-    // ---------------- 14. INTERACTIVE STATE (43.5s) ----------------
+    // ---------------- 14. INTERACTIVE STATE (52.5s) ----------------
     this.masterTimeline.add(() => {
       this.setStage('INTERACTIVE');
-    }, 43.5);
+    }, 52.5);
 
-    this.masterTimeline.to({}, { duration: 0.5 }, 44.0);
+    this.masterTimeline.to({}, { duration: 0.5 }, 53.0);
   }
 
   private completeRemainingSectionTasks(sectionId: ConstructionSectionId): void {
@@ -670,10 +670,24 @@ export class AgentOrchestrator {
               state.y = state.targetY;
               state.vx = 0;
               state.vy = 0;
-              state.pauseTimer = Math.round(220 / this.speedMultiplier); // Pre-interaction lock-on
+              state.pauseTimer = Math.round(260 / this.speedMultiplier); // Pre-interaction lock-on
+
+              // Dispatch Three.js spatial pulse ripple!
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(
+                  new CustomEvent('three:spatial-pulse', {
+                    detail: {
+                      x: state.x,
+                      y: state.y,
+                      color: agent.color,
+                      intensity: 1.0,
+                    },
+                  })
+                );
+              }
             } else {
-              // Decelerate smoothly on approach
-              const arrivalFactor = Math.min(1, Math.max(0.2, dist / 85));
+              // Decelerate smoothly on approach across a wide deceleration cone
+              const arrivalFactor = Math.min(1, Math.max(0.18, dist / 130));
               const targetSpeed = state.speed * arrivalFactor * this.speedMultiplier;
 
               const steerX = (dx / dist) * targetSpeed;

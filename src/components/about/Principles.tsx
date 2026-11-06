@@ -6,28 +6,32 @@ export const Principles: React.FC = () => {
     {
       number: '01',
       title: 'SYSTEM THINKING',
-      description: 'Understanding how individual components form larger systems. Inspecting the interplay between UI, event loops, persistent schemas, and background tasks.',
+      description:
+        'Understanding how individual components form larger systems. Inspecting the interplay between UI, event loops, persistent schemas, and background tasks.',
       icon: Layers,
       accent: '#FF414D',
     },
     {
       number: '02',
       title: 'EXPERIMENTATION',
-      description: 'Testing ideas through prototypes and practical implementation. Hypothesizing, measuring edge cases, and discarding assumptions that fail empirical tests.',
+      description:
+        'Testing ideas through prototypes and practical implementation. Hypothesizing, measuring edge cases, and discarding assumptions that fail empirical tests.',
       icon: TestTube2,
       accent: '#B44CFF',
     },
     {
       number: '03',
       title: 'ENGINEERING',
-      description: 'Building functional, maintainable, and scalable applications. Clean separation of concerns, explicit error boundaries, and defensive architecture.',
+      description:
+        'Building functional, maintainable, and scalable applications. Clean separation of concerns, explicit error boundaries, and defensive architecture.',
       icon: Wrench,
       accent: '#00F0FF',
     },
     {
       number: '04',
       title: 'CONTINUOUS LEARNING',
-      description: 'Exploring emerging technologies through hands-on work. Staying ahead by dissecting new models, edge runtimes, and next-gen human-computer paradigms.',
+      description:
+        'Exploring emerging technologies through hands-on work. Staying ahead by dissecting new models, edge runtimes, and next-gen human-computer paradigms.',
       icon: Sparkles,
       accent: '#34D399',
     },
@@ -40,7 +44,9 @@ export const Principles: React.FC = () => {
         return (
           <div
             key={p.number}
-            className="group relative p-6 rounded-xl border border-white/10 bg-[#101116]/60 hover:bg-[#101116] hover:border-white/25 transition-all duration-300 flex flex-col justify-between"
+            data-build-target={`about-principle-${p.number}`}
+            data-build-status="unbuilt"
+            className="group relative p-6 rounded-2xl border border-white/10 bg-[#101116]/80 hover:bg-[#101116] hover:border-white/25 transition-all duration-300 flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
@@ -63,8 +69,8 @@ export const Principles: React.FC = () => {
             </div>
 
             <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[10px] font-mono text-white/30">
-              <span>PRINCIPLE_RULE</span>
-              <span className="group-hover:text-white transition-colors">ACTIVE</span>
+              <span>PRINCIPLE_AXIOM</span>
+              <span className="text-[#34D399]">VERIFIED</span>
             </div>
           </div>
         );
@@ -72,4 +78,3 @@ export const Principles: React.FC = () => {
     </div>
   );
 };
-

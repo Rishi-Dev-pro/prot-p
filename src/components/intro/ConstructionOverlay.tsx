@@ -1,42 +1,10 @@
 import React from 'react';
-import { SectionTimelineConfig } from '../../animations/construction/ConstructionConfig';
 
-interface ConstructionOverlayProps {
-  currentSection: SectionTimelineConfig;
-  progress: number;
-  activeAgentsCount: number;
-}
-
-export const ConstructionOverlay: React.FC<ConstructionOverlayProps> = ({
-  currentSection,
-  progress,
-  activeAgentsCount,
-}) => {
+export const ConstructionOverlay: React.FC = () => {
   return (
     <div className="fixed inset-0 pointer-events-none z-30 overflow-hidden select-none">
-      {/* Dynamic Design Workspace Subtle Grid Overlay */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-30 animate-pulse [animation-duration:9s]" />
-
-      {/* Sweeping technical laser scanline */}
-      <div className="absolute inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[#B44CFF]/40 to-transparent animate-laser-scan pointer-events-none" />
-
-      {/* Viewport Boundary Caliper Markers */}
-      <div className="absolute top-4 left-4 font-mono text-[9px] text-[#38BDF8]/60 flex items-center gap-1.5">
-        <span>+ [0.00, 0.00]</span>
-        <span className="text-white/20">|</span>
-        <span>WORKSPACE_INIT</span>
-      </div>
-
-      <div className="absolute top-4 right-44 font-mono text-[9px] text-white/40 hidden md:flex items-center gap-2">
-        <span>LAYER_STACK // ACTIVE</span>
-        <span className="text-[#C4B5FD] font-semibold">{currentSection.title}</span>
-      </div>
-
-      <div className="absolute bottom-4 left-4 font-mono text-[9px] text-white/40 hidden sm:flex items-center gap-2">
-        <span>GRID: 12_COL_RESPONSIVE</span>
-        <span className="text-white/20">•</span>
-        <span>ORCHESTRATOR: {activeAgentsCount} NODES ACTIVE</span>
-      </div>
+      {/* Subtle blueprint workspace grid overlay */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-15" />
     </div>
   );
 };

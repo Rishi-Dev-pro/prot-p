@@ -97,10 +97,10 @@ export const Hero: React.FC<HeroProps> = ({
             className="mt-8 flex flex-col gap-4"
           >
             <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-              <Button href="#projects" variant="primary" size="md" icon techCode="02">
+              <Button href="#projects" variant="primary" size="md" icon>
                 VIEW PROJECTS
               </Button>
-              <Button href="#about" variant="secondary" size="md" techCode="01">
+              <Button href="#about" variant="secondary" size="md">
                 EXPLORE ABOUT
               </Button>
               <Button
@@ -108,7 +108,6 @@ export const Hero: React.FC<HeroProps> = ({
                 external
                 variant="outline"
                 size="md"
-                techCode="GIT"
               >
                 <GithubIcon className="w-3.5 h-3.5 mr-2" />
                 GITHUB
@@ -249,7 +248,7 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
               <div className="flex justify-between items-center text-[10px] font-mono">
                 <span className="text-white/40">AGENT_ECOSYSTEM</span>
-                <span className="text-[#00F0FF]">20 UNITS SIMULATED</span>
+                <span className="text-[#00F0FF]">06 COORDINATED AGENTS</span>
               </div>
             </div>
 
