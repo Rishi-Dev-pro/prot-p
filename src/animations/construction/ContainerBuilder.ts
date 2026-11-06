@@ -60,10 +60,12 @@ export function buildContainer(options: ContainerBuilderOptions): gsap.core.Time
     0.35
   );
 
-  // 3. Internal Structural Dividers
-  const dividers = el.querySelectorAll(
-    'hr, [class*="border-b"], [class*="border-t"], [class*="text-white/20"]'
-  );
+  // 3. Internal Structural Dividers (exclude elements that are independent build targets)
+  const dividers = Array.from(
+    el.querySelectorAll<HTMLElement>(
+      'hr, [data-divider="true"]'
+    )
+  ).filter((d) => !d.hasAttribute('data-build-target'));
   if (dividers.length > 0) {
     masterTl.fromTo(
       dividers,

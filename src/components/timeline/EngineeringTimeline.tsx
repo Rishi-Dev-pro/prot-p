@@ -186,17 +186,14 @@ export const EngineeringTimeline: React.FC = () => {
 
   return (
     <div
+      id="timeline"
       data-build-target="engineering-timeline"
       data-build-status="unbuilt"
       className="mt-12 p-6 sm:p-8 rounded-2xl border border-white/10 bg-[#0C0D12]/90 backdrop-blur-xl relative overflow-hidden shadow-2xl"
     >
       {/* Header */}
-      <div
-        data-build-target="timeline-heading"
-        data-build-status="unbuilt"
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6 mb-8"
-      >
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6 mb-8">
+        <div data-build-target="timeline-heading" data-build-status="unbuilt">
           <div className="flex items-center gap-2 mb-1.5 text-xs font-mono text-[#00F0FF]">
             <Calendar className="w-3.5 h-3.5" />
             <span className="font-bold tracking-wider">ENGINEERING CHRONOLOGY</span>
@@ -207,7 +204,11 @@ export const EngineeringTimeline: React.FC = () => {
         </div>
 
         {/* Category Filter Pills */}
-        <div className="flex flex-wrap items-center gap-1.5 bg-[#14151C] p-1 rounded-lg border border-white/10">
+        <div
+          data-build-target="timeline-filters"
+          data-build-status="unbuilt"
+          className="flex flex-wrap items-center gap-1.5 bg-[#14151C] p-1 rounded-lg border border-white/10"
+        >
           {categories.map((c) => (
             <button
               key={c.id}

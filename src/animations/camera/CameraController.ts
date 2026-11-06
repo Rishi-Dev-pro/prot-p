@@ -11,7 +11,7 @@ export class CameraController {
   private sectionElementMap: Record<ConstructionSectionId, string> = {
     hero: '#hero',
     about: '#about',
-    timeline: '[data-build-target="engineering-timeline"]',
+    timeline: '#timeline',
     projects: '#projects',
     architecture: '#architecture',
     stack: '#stack',
@@ -29,7 +29,7 @@ export class CameraController {
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
     this.currentSection = sectionId;
-    const offsetY = options.offsetY ?? 70;
+    const offsetY = options.offsetY ?? 95;
 
     if (sectionId === 'hero') {
       window.scrollTo({
