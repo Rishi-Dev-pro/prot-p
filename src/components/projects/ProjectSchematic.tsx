@@ -290,3 +290,4 @@ export const ProjectSchematic: React.FC<ProjectSchematicProps> = ({
       return null;
   }
 };
+

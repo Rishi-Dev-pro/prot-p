@@ -4,10 +4,27 @@ import { ProjectCard } from './ProjectCard';
 import { ProjectDetails } from './ProjectDetails';
 import { FLAGSHIP_PROJECTS } from '../../data/projects';
 import { FlagshipProject } from '../../types/project';
-import { Terminal, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
-export const Projects: React.FC = () => {
-  const [selectedProject, setSelectedProject] = useState<FlagshipProject | null>(null);
+interface ProjectsProps {
+  externalSelectedProject?: FlagshipProject | null;
+  onClearExternalProject?: () => void;
+}
+
+export const Projects: React.FC<ProjectsProps> = ({
+  externalSelectedProject,
+  onClearExternalProject,
+}) => {
+  const [internalSelectedProject, setInternalSelectedProject] = useState<FlagshipProject | null>(null);
+
+  const activeProject = externalSelectedProject ?? internalSelectedProject;
+
+  const handleClose = () => {
+    setInternalSelectedProject(null);
+    if (onClearExternalProject) {
+      onClearExternalProject();
+    }
+  };
 
   return (
     <section id="projects" className="relative py-24 sm:py-32 border-t border-white/5">
@@ -39,7 +56,7 @@ export const Projects: React.FC = () => {
             <ProjectCard
               key={project.id}
               project={project}
-              onInspect={(p) => setSelectedProject(p)}
+              onInspect={(p) => setInternalSelectedProject(p)}
               index={idx}
             />
           ))}
@@ -48,10 +65,9 @@ export const Projects: React.FC = () => {
 
       {/* Deep Architecture Details Modal */}
       <ProjectDetails
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
+        project={activeProject}
+        onClose={handleClose}
       />
     </section>
   );
 };
-

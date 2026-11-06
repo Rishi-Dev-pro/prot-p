@@ -22,9 +22,9 @@ export const ConstructionTelemetry: React.FC<ConstructionTelemetryProps> = ({
   return (
     <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden select-none">
       {/* Top Left: Canvas Mode Calipers */}
-      <div className="absolute top-5 left-5 font-mono text-[10px] text-[#00F0FF] flex items-center gap-2 bg-[#08090D]/90 border border-[#00F0FF]/30 px-3 py-1.5 rounded-lg backdrop-blur-md shadow-xl">
-        <span className="w-2 h-2 bg-[#00F0FF] rounded-full animate-ping" />
-        <span className="font-bold tracking-wider">CANVAS_CONSTRUCTION_V3 // ACTIVE</span>
+      <div className="absolute top-5 left-5 font-mono text-[10px] text-[#00FF88] flex items-center gap-2 bg-[#08090D]/90 border border-[#00FF88]/30 px-3 py-1.5 rounded-lg backdrop-blur-md shadow-xl">
+        <span className="w-2 h-2 bg-[#00FF88] rounded-full animate-ping" />
+        <span className="font-bold tracking-wider">AUTONOMOUS_ORCHESTRATION_V5 // SYNCHRONIZED</span>
       </div>
 
       {/* Top Right: Speed Toggle & Skip Button */}

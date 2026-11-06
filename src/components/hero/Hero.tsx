@@ -1,12 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { HeroTypography } from './HeroTypography';
 import { HeroMetadata } from './HeroMetadata';
 import { Button } from '../common/Button';
-import { ArrowDown, Terminal, Cpu } from 'lucide-react';
+import { ArrowDown, Terminal, Cpu, Search, Scale } from 'lucide-react';
 import { GithubIcon } from '../common/Icons';
 import { SOCIAL_LINKS } from '../../data/navigation';
+import { soundEffects } from '../../services/soundEffects';
 
-export const Hero: React.FC = () => {
+interface HeroProps {
+  onOpenCommandPalette?: () => void;
+  onOpenTerminal?: () => void;
+  onOpenComparator?: () => void;
+}
+
+export const Hero: React.FC<HeroProps> = ({
+  onOpenCommandPalette,
+  onOpenTerminal,
+  onOpenComparator,
+}) => {
+  const [avatarTilt, setAvatarTilt] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setAvatarTilt({ x: x * 20, y: -y * 20 });
+  };
+
+  const handleMouseLeave = () => {
+    setAvatarTilt({ x: 0, y: 0 });
+  };
+
   return (
     <section
       id="hero"
@@ -39,6 +63,29 @@ export const Hero: React.FC = () => {
             I'm <strong className="text-[#F3F3F5] font-semibold">Rishi Kumar Shaw</strong> — a developer exploring the intersection of software engineering, artificial intelligence, computer vision, and intelligent systems. I build ideas into working software, experiment with unconventional interfaces, and enjoy understanding how complex systems work.
           </p>
 
+          {/* Live Technical Information Area (Part D.2) */}
+          <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-2xl p-3 rounded-lg border border-white/10 bg-[#0E0F15]/90 backdrop-blur-md">
+            <div className="flex flex-col">
+              <span className="font-mono text-[9px] text-white/40 tracking-wider">SYSTEM</span>
+              <span className="font-mono text-xs font-bold text-white tracking-wide">RISHI_ENGINEERING</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="font-mono text-[9px] text-white/40 tracking-wider">FOCUS</span>
+              <span className="font-mono text-xs font-bold text-[#00F0FF] tracking-wide">FULL STACK / AI / VISION</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="font-mono text-[9px] text-white/40 tracking-wider">PROJECTS</span>
+              <span className="font-mono text-xs font-bold text-[#FF414D] tracking-wide">06 FLAGSHIP</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="font-mono text-[9px] text-white/40 tracking-wider">ENVIRONMENT</span>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="w-2 h-2 rounded-full bg-[#00FF88] shadow-[0_0_8px_#00FF88] animate-pulse" />
+                <span className="font-mono text-xs font-bold text-[#00FF88]">ONLINE</span>
+              </div>
+            </div>
+          </div>
+
           {/* Action CTAs */}
           <div
             data-build-target="hero-actions"
@@ -65,6 +112,57 @@ export const Hero: React.FC = () => {
               CONTACT
             </Button>
           </div>
+
+          {/* Interactive Exploration Controls (Part D.2 & Part E) */}
+          <div className="mt-4 flex flex-wrap items-center gap-2 pt-2">
+            <span className="font-mono text-[10px] text-white/40 tracking-wider uppercase mr-1">
+              EXPLORE_TOOLS:
+            </span>
+
+            {onOpenCommandPalette && (
+              <button
+                onClick={() => {
+                  soundEffects.playClick();
+                  onOpenCommandPalette();
+                }}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-white/10 bg-[#12131A] hover:bg-white/10 text-[10px] font-mono text-white/80 transition-colors cursor-pointer"
+                title="Command Palette (Ctrl + K)"
+              >
+                <Search className="w-3 h-3 text-[#FF414D]" />
+                <span>COMMAND PALETTE</span>
+                <kbd className="px-1 py-0.2 rounded bg-white/10 text-[8px] text-white/50">⌘K</kbd>
+              </button>
+            )}
+
+            {onOpenTerminal && (
+              <button
+                onClick={() => {
+                  soundEffects.playClick();
+                  onOpenTerminal();
+                }}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-white/10 bg-[#12131A] hover:bg-white/10 text-[10px] font-mono text-white/80 transition-colors cursor-pointer"
+                title="Open Interactive Terminal"
+              >
+                <Terminal className="w-3 h-3 text-[#00FF88]" />
+                <span>TERMINAL</span>
+                <kbd className="px-1 py-0.2 rounded bg-white/10 text-[8px] text-white/50">`</kbd>
+              </button>
+            )}
+
+            {onOpenComparator && (
+              <button
+                onClick={() => {
+                  soundEffects.playClick();
+                  onOpenComparator();
+                }}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-white/10 bg-[#12131A] hover:bg-white/10 text-[10px] font-mono text-white/80 transition-colors cursor-pointer"
+                title="Side-by-side Project Comparator"
+              >
+                <Scale className="w-3 h-3 text-[#00F0FF]" />
+                <span>COMPARE PROJECTS</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Right Column: Abstract Geometric Identity Avatar & System Node Visualizer */}
@@ -73,7 +171,15 @@ export const Hero: React.FC = () => {
           data-build-status="unbuilt"
           className="lg:col-span-4 flex flex-col items-center justify-center"
         >
-          <div className="w-full max-w-sm border border-white/10 bg-[#101116]/80 backdrop-blur-md rounded-xl p-6 relative group overflow-hidden shadow-2xl shadow-black/80">
+          <div
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            style={{
+              transform: `perspective(1000px) rotateY(${avatarTilt.x}deg) rotateX(${avatarTilt.y}deg)`,
+              transition: 'transform 0.15s ease-out',
+            }}
+            className="w-full max-w-sm border border-white/10 bg-[#101116]/80 backdrop-blur-md rounded-xl p-6 relative group overflow-hidden shadow-2xl shadow-black/80"
+          >
             {/* Top header badge */}
             <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-6">
               <div className="flex items-center gap-2">
@@ -83,7 +189,7 @@ export const Hero: React.FC = () => {
               <span className="font-mono text-[10px] text-white/30">CANVAS_2026</span>
             </div>
 
-            {/* Geometric SVG Matrix */}
+            {/* Geometric SVG Matrix with interactive orbital movement */}
             <div className="relative w-48 h-48 mx-auto flex items-center justify-center my-2">
               {/* Outer rotating ring */}
               <div className="absolute inset-0 border border-dashed border-white/15 rounded-full animate-spin [animation-duration:35s]" />
