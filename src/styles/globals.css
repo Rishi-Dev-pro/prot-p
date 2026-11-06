@@ -1,0 +1,196 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #08090D;
+  --color-bg-secondary: #101116;
+  --color-text-primary: #F3F3F5;
+  --color-text-secondary: #92939F;
+  --color-accent: #FF414D;
+  --color-accent-violet: #B44CFF;
+  --color-border-subtle: rgba(255, 255, 255, 0.10);
+
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+:root {
+  --bg-primary: #08090D;
+  --bg-secondary: #101116;
+  --text-primary: #F3F3F5;
+  --text-secondary: #92939F;
+  --accent: #FF414D;
+  --accent-violet: #B44CFF;
+  --border-subtle: rgba(255, 255, 255, 0.10);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #08090D;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FF414D;
+}
+
+/* Outlined typography helper */
+.text-outline {
+  -webkit-text-stroke: 1.5px rgba(243, 243, 245, 0.35);
+  color: transparent;
+  transition: all 0.3s ease;
+}
+
+.text-outline-accent {
+  -webkit-text-stroke: 1.5px rgba(255, 65, 77, 0.6);
+  color: transparent;
+}
+
+.text-outline:hover {
+  -webkit-text-stroke: 1.5px rgba(255, 65, 77, 0.9);
+  color: rgba(255, 65, 77, 0.05);
+}
+
+/* Background grid pattern */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.bg-dot-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Glowing accent dots */
+.glow-accent {
+  box-shadow: 0 0 15px rgba(255, 65, 77, 0.45);
+}
+
+.glow-violet {
+  box-shadow: 0 0 15px rgba(180, 76, 255, 0.45);
+}
+
+/* Technical scanline overlay */
+.scanline-overlay {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+}
+
+
+
+/* =========================================================================
+   PHYSICAL AGENTIC WEBSITE CONSTRUCTION SYSTEM (V2)
+   ========================================================================= */
+
+@keyframes wireframe-pulse {
+  0% {
+    outline-color: rgba(0, 240, 255, 0.4);
+    background-color: rgba(0, 240, 255, 0.02);
+  }
+  100% {
+    outline-color: rgba(0, 240, 255, 0.85);
+    background-color: rgba(0, 240, 255, 0.08);
+  }
+}
+
+@keyframes laser-beam-scan {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Base Construction Target Transitions */
+[data-build-target] {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, outline 0.3s ease;
+  will-change: transform, opacity, clip-path;
+}
+
+/* 1. Unbuilt state (invisible before agent arrival) */
+body.construction-active [data-build-status="unbuilt"] {
+  opacity: 0 !important;
+  transform: translate3d(0, 16px, 0) scale(0.97) !important;
+  pointer-events: none !important;
+  clip-path: inset(0 100% 0 0);
+}
+
+/* 2. Wireframe blueprint state (agent approaching / locking coordinates) */
+body.construction-active [data-build-status="wireframe"] {
+  opacity: 0.95 !important;
+  transform: translate3d(0, 0, 0) scale(1) !important;
+  outline: 1.5px dashed rgba(0, 240, 255, 0.8) !important;
+  outline-offset: 4px;
+  animation: wireframe-pulse 0.8s infinite alternate !important;
+  clip-path: inset(0 0 0 0) !important;
+  position: relative;
+}
+
+body.construction-active [data-build-status="wireframe"]::after {
+  content: "BLUEPRINT // ALLOCATING";
+  position: absolute;
+  top: -18px;
+  left: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  color: #00F0FF;
+  background: rgba(8, 9, 13, 0.9);
+  padding: 1px 4px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  z-index: 40;
+}
+
+/* 3. Drawing state (agent actively sweeping across the component) */
+body.construction-active [data-build-status="drawing"] {
+  opacity: 1 !important;
+  transform: translate3d(0, 0, 0) scale(1) !important;
+  outline: 1.5px solid rgba(255, 65, 77, 0.9) !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 25px rgba(255, 65, 77, 0.35) !important;
+  clip-path: inset(0 0 0 0) !important;
+  position: relative;
+}
+
+body.construction-active [data-build-status="drawing"]::after {
+  content: "SYNTHESIZING_DOM";
+  position: absolute;
+  top: -18px;
+  right: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  color: #FF414D;
+  background: rgba(8, 9, 13, 0.9);
+  padding: 1px 4px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 65, 77, 0.5);
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  z-index: 40;
+}
+
+/* 4. Assembled state (solidified production component) */
+body.construction-active [data-build-status="assembled"],
+[data-build-status="assembled"] {
+  opacity: 1 !important;
+  transform: none !important;
+  outline: none !important;
+  box-shadow: none;
+  clip-path: none !important;
+}
