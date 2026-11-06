@@ -22,7 +22,7 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
   const prefersReduced = useReducedMotion();
   const { isMobile } = useDeviceType();
 
-  const [stage, setStage] = useState<OrchestratorStage>('blank');
+  const [stage, setStage] = useState<OrchestratorStage>('BOOTING');
   const [bootMessage, setBootMessage] = useState<string>('INITIALIZING CREATIVE ENVIRONMENT');
   const [syncTelemetry, setSyncTelemetry] = useState<string>('');
   const [bannerNotification, setBannerNotification] = useState<string>('');
@@ -120,7 +120,11 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
   return (
     <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden select-none">
       {/* Stage 0-3 Canvas Backdrop: Dark, mysterious slate canvas with technical grid */}
-      {(stage === 'blank' || stage === 'arrival' || stage === 'circular' || stage === 'radial') && (
+      {(stage === 'BOOTING' ||
+        stage === 'CANVAS_INITIALIZED' ||
+        stage === 'AGENTS_ENTERING' ||
+        stage === 'FORMATION_ACTIVE' ||
+        stage === 'DEPLOYMENT_ACTIVE') && (
         <div className="absolute inset-0 bg-[#050608] z-20 pointer-events-auto transition-opacity duration-700">
           <div
             className="absolute inset-0 opacity-[0.07]"
@@ -132,7 +136,7 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
         </div>
       )}
 
-      {/* Central Geometric Core for Stage 0 (Boot), Stage 1 (Arrival), Stage 2 (Circular Orbit), Stage 3 (Burst) */}
+      {/* Central Geometric Core for Booting, Arrival, Circular Orbit, and Radial Deployment */}
       <CentralCore
         stage={stage}
         bootMessage={bootMessage}
@@ -152,8 +156,8 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
         </div>
       )}
 
-      {/* Design Workspace Blueprint Overlay (Stages 4-5) */}
-      {stage === 'active' && (
+      {/* Design Workspace Blueprint Overlay (Active Construction) */}
+      {(stage === 'CONSTRUCTION_ACTIVE' || stage === 'SECTION_TRANSITION') && (
         <ConstructionOverlay
           currentSection={currentSection}
           progress={progress}
@@ -172,7 +176,10 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
       />
 
       {/* Freestyle 20-Agent Cursor Layer with Dynamic Orbit & Bézier Movement */}
-      <AgentCursorLayer agents={agents} visible={stage !== 'blank' && !isDone} />
+      <AgentCursorLayer
+        agents={agents}
+        visible={stage !== 'BOOTING' && stage !== 'CANVAS_INITIALIZED' && !isDone}
+      />
     </div>
   );
 };

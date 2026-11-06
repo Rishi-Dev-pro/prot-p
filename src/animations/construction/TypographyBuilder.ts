@@ -12,7 +12,18 @@ export function buildTypography(options: TypographyBuilderOptions): gsap.core.Ti
   const tl = gsap.timeline({
     onUpdate: () => {
       const p = Math.round(tl.progress() * 100);
-      options.onProgress?.(p, p < 30 ? 'PROJECTING_BASELINES' : p < 70 ? 'ASSEMBLING_GLYPHS' : 'KERNING_ALIGNMENT');
+      options.onProgress?.(
+        p,
+        p < 20
+          ? 'DRAWING_BASELINES'
+          : p < 45
+          ? 'REVEALING_ALIGNMENT_GUIDES'
+          : p < 70
+          ? 'ASSEMBLING_GLYPH_GROUPS'
+          : p < 90
+          ? 'OUTLINE_TO_SOLID_TRANSFORM'
+          : 'TYPOGRAPHY_COMPILED'
+      );
     },
     onComplete: options.onComplete,
   });
@@ -20,60 +31,73 @@ export function buildTypography(options: TypographyBuilderOptions): gsap.core.Ti
   const el = document.querySelector<HTMLElement>(options.containerSelector);
   if (!el) return tl;
 
-  // 1. Initial State: wireframe outline with layout calibration
   tl.set(el, {
     opacity: 1,
     visibility: 'visible',
   });
 
-  // Find all words/lines or child headings
-  const headings = el.querySelectorAll('h1, h2, h3, p, span');
+  const textNodes = el.matches('h1, h2, h3, p, span') ? [el] : Array.from(el.querySelectorAll<HTMLElement>('h1, h2, h3, p, span'));
+  if (textNodes.length === 0) {
+    textNodes.push(el);
+  }
 
-  headings.forEach((heading, hIdx) => {
-    // Stage A: Baseline & measurement guide flash
+  textNodes.forEach((node, hIdx) => {
+    // Stage 1 & 2: Draw baseline & alignment guides
     tl.to(
-      heading,
+      node,
       {
-        duration: 0.4,
-        outline: '1px dashed rgba(0, 240, 255, 0.7)',
+        duration: 0.3,
+        outline: '1.5px dashed rgba(0, 240, 255, 0.75)',
         outlineOffset: '4px',
         ease: 'power1.out',
       },
-      hIdx * 0.35
+      hIdx * 0.15
     );
 
-    // Stage B: Glyphs placement (scale from 0.85 to 1.0 with letter-spacing snap)
+    // Stage 3, 4 & 5: Assemble glyphs with letter-spacing adjustment
     tl.fromTo(
-      heading,
+      node,
       {
         opacity: 0,
-        y: 12,
-        letterSpacing: '0.15em',
-        filter: 'blur(4px)',
+        y: 10,
+        letterSpacing: '0.18em',
+        filter: 'blur(3px)',
       },
       {
-        opacity: 1,
+        opacity: 0.85,
         y: 0,
         letterSpacing: 'normal',
         filter: 'blur(0px)',
-        duration: 0.6,
+        duration: 0.35,
         ease: 'power3.out',
       },
-      `>-0.1`
+      '>-0.1'
     );
 
-    // Stage C: Remove baseline guide and solidify font-weight/color
+    // Stage 6 & 7: Outline to solid transition & final opacity snap
     tl.to(
-      heading,
+      node,
+      {
+        opacity: 1,
+        color: '#F3F3F5',
+        duration: 0.25,
+        ease: 'power2.inOut',
+      },
+      '>'
+    );
+
+    // Stage 8 & 9: Remove temporary alignment guides & apply final polish
+    tl.to(
+      node,
       {
         outline: 'none',
-        duration: 0.3,
+        clearProps: 'outline,outlineOffset,filter',
+        duration: 0.15,
         ease: 'power1.in',
       },
-      `>+0.1`
+      '>'
     );
   });
 
   return tl;
 }
-

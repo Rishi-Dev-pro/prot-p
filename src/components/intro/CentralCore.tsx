@@ -1,7 +1,8 @@
 import React from 'react';
+import { OrchestratorStage } from '../../animations/orchestration/AgentOrchestrator';
 
 export interface CentralCoreProps {
-  stage: 'blank' | 'arrival' | 'circular' | 'radial' | 'active' | 'complete';
+  stage: OrchestratorStage;
   bootMessage?: string;
   syncTelemetry?: string;
   burstParticles?: Array<{
@@ -20,7 +21,16 @@ export const CentralCore: React.FC<CentralCoreProps> = ({
   syncTelemetry,
   burstParticles = [],
 }) => {
-  if (stage === 'active' || stage === 'complete') return null;
+  if (
+    stage === 'CONSTRUCTION_ACTIVE' ||
+    stage === 'SECTION_TRANSITION' ||
+    stage === 'FINAL_REVEAL' ||
+    stage === 'INTERACTIVE'
+  ) {
+    return null;
+  }
+
+  const isCircular = stage === 'FORMATION_ACTIVE';
 
   return (
     <div className="fixed inset-0 pointer-events-none z-30 flex items-center justify-center overflow-hidden select-none">
@@ -47,7 +57,7 @@ export const CentralCore: React.FC<CentralCoreProps> = ({
         {/* Outermost Radar Ring with Dashes */}
         <svg
           className={`absolute w-72 h-72 transition-opacity duration-700 pointer-events-none ${
-            stage === 'circular' ? 'opacity-90 animate-[spin_24s_linear_infinite]' : 'opacity-30'
+            isCircular ? 'opacity-90 animate-[spin_24s_linear_infinite]' : 'opacity-30'
           }`}
           viewBox="0 0 288 288"
           fill="none"
@@ -65,7 +75,7 @@ export const CentralCore: React.FC<CentralCoreProps> = ({
         {/* Secondary Calibrated Degree Ring */}
         <svg
           className={`w-56 h-56 transition-all duration-700 ${
-            stage === 'circular' ? 'opacity-100 animate-[spin_16s_linear_infinite_reverse]' : 'opacity-40'
+            isCircular ? 'opacity-100 animate-[spin_16s_linear_infinite_reverse]' : 'opacity-40'
           }`}
           viewBox="0 0 200 200"
           fill="none"
@@ -101,7 +111,7 @@ export const CentralCore: React.FC<CentralCoreProps> = ({
           {/* Pulsing Aura */}
           <div
             className={`w-20 h-20 rounded-full transition-transform duration-500 blur-md ${
-              stage === 'circular' ? 'bg-[#FF414D]/25 scale-125 animate-pulse' : 'bg-cyan-500/15 scale-90'
+              isCircular ? 'bg-[#FF414D]/25 scale-125 animate-pulse' : 'bg-cyan-500/15 scale-90'
             }`}
           />
           {/* Core Geometric Diamond */}
@@ -117,10 +127,10 @@ export const CentralCore: React.FC<CentralCoreProps> = ({
         {/* Telemetry Message Overlay */}
         <div
           className={`absolute left-1/2 -translate-x-1/2 flex flex-col items-center text-center whitespace-nowrap pointer-events-none transition-all duration-300 ${
-            stage === 'circular' ? '-bottom-48' : '-bottom-24'
+            isCircular ? '-bottom-48' : '-bottom-24'
           }`}
         >
-          {stage === 'blank' && bootMessage && (
+          {(stage === 'BOOTING' || stage === 'CANVAS_INITIALIZED') && bootMessage && (
             <div className="flex flex-col items-center gap-1.5 animate-in fade-in zoom-in-95 duration-300">
               <span className="font-mono text-[11px] tracking-[0.25em] text-white/90 font-semibold uppercase">
                 {bootMessage}
@@ -134,7 +144,7 @@ export const CentralCore: React.FC<CentralCoreProps> = ({
             </div>
           )}
 
-          {stage === 'arrival' && (
+          {stage === 'AGENTS_ENTERING' && (
             <div className="flex flex-col items-center gap-1 animate-in fade-in duration-300">
               <span className="font-mono text-[11px] tracking-[0.2em] text-[#00FF88] font-bold uppercase">
                 INCOMING AGENT CLUSTER
@@ -145,7 +155,7 @@ export const CentralCore: React.FC<CentralCoreProps> = ({
             </div>
           )}
 
-          {stage === 'circular' && (
+          {stage === 'FORMATION_ACTIVE' && (
             <div className="flex flex-col items-center gap-1.5 bg-[#08090D]/90 border border-white/10 px-4 py-2 rounded shadow-2xl backdrop-blur-md animate-in fade-in zoom-in-95 duration-300">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#00FF88] shadow-[0_0_8px_#00FF88]" />
@@ -166,7 +176,7 @@ export const CentralCore: React.FC<CentralCoreProps> = ({
             </div>
           )}
 
-          {stage === 'radial' && (
+          {stage === 'DEPLOYMENT_ACTIVE' && (
             <div className="flex flex-col items-center gap-1 animate-in fade-in zoom-in-95 duration-200">
               <span className="font-mono text-[11px] font-bold tracking-widest text-[#00FF88] uppercase">
                 RADIAL DEPLOYMENT INITIATED

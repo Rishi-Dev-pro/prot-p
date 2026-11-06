@@ -195,6 +195,17 @@ export const INITIAL_CONSTRUCTION_TASKS: QueuedTask[] = [
     offsetPct: { x: 0.5, y: 0.5 },
     status: 'pending',
   },
+  {
+    id: 'engineering-timeline',
+    sectionId: 'about',
+    targetSelector: '[data-build-target="engineering-timeline"]',
+    preferredAgentId: 'AGENT_14',
+    taskLabel: 'CHRONOLOGY: PROGRESSION_SPINE',
+    strategy: 'container',
+    durationMs: 1500,
+    offsetPct: { x: 0.5, y: 0.5 },
+    status: 'pending',
+  },
 
   // ================= SECTION 3: FLAGSHIP PROJECTS (6) =================
   {

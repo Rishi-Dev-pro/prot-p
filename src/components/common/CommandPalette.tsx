@@ -78,6 +78,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       action: () => navigateTo('#about'),
     },
     {
+      id: 'nav-timeline',
+      title: 'Go to Engineering Chronology & Milestones',
+      category: 'Navigation',
+      icon: <Sparkles className="w-4 h-4 text-[#FACC15]" />,
+      action: () => navigateTo('[data-build-target="engineering-timeline"]'),
+    },
+    {
       id: 'nav-projects',
       title: 'Explore Flagship Projects',
       category: 'Navigation',
@@ -346,3 +353,4 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     </div>
   );
 };
+

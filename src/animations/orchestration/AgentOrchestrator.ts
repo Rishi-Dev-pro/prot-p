@@ -13,12 +13,15 @@ import { ConstructionStrategies } from '../construction/ConstructionStrategies';
 import { FreestyleAgentState } from '../construction/FreestyleAgentEngine';
 
 export type OrchestratorStage =
-  | 'blank'
-  | 'arrival'
-  | 'circular'
-  | 'radial'
-  | 'active'
-  | 'complete';
+  | 'BOOTING'
+  | 'CANVAS_INITIALIZED'
+  | 'AGENTS_ENTERING'
+  | 'FORMATION_ACTIVE'
+  | 'DEPLOYMENT_ACTIVE'
+  | 'CONSTRUCTION_ACTIVE'
+  | 'SECTION_TRANSITION'
+  | 'FINAL_REVEAL'
+  | 'INTERACTIVE';
 
 export interface OrchestratorCallbacks {
   onStageChange: (stage: OrchestratorStage) => void;
@@ -51,7 +54,7 @@ interface AgentLiveState {
 export class AgentOrchestrator {
   private agentsData: AgentCursorData[];
   private callbacks: OrchestratorCallbacks;
-  private currentStage: OrchestratorStage = 'blank';
+  private currentStage: OrchestratorStage = 'BOOTING';
 
   private circularEngine: CircularFormationEngine;
   private radialController: RadialDeploymentController;
@@ -78,6 +81,7 @@ export class AgentOrchestrator {
     if (typeof window !== 'undefined') {
       this.width = window.innerWidth;
       this.height = window.innerHeight;
+      (window as unknown as { __ORCHESTRATOR_ACTIVE__?: boolean }).__ORCHESTRATOR_ACTIVE__ = true;
     }
 
     this.circularEngine = new CircularFormationEngine(this.width, this.height, this.agentsData.length);
@@ -94,31 +98,31 @@ export class AgentOrchestrator {
 
   private initAgentStates(): void {
     const edgePositions = [
-      { x: -50, y: this.height * 0.2 },
-      { x: -50, y: this.height * 0.5 },
-      { x: -50, y: this.height * 0.8 },
-      { x: this.width + 50, y: this.height * 0.2 },
-      { x: this.width + 50, y: this.height * 0.5 },
-      { x: this.width + 50, y: this.height * 0.8 },
-      { x: this.width * 0.2, y: -50 },
-      { x: this.width * 0.5, y: -50 },
-      { x: this.width * 0.8, y: -50 },
-      { x: this.width * 0.2, y: this.height + 50 },
-      { x: this.width * 0.5, y: this.height + 50 },
-      { x: this.width * 0.8, y: this.height + 50 },
-      { x: -50, y: -50 },
-      { x: this.width + 50, y: -50 },
-      { x: -50, y: this.height + 50 },
-      { x: this.width + 50, y: this.height + 50 },
-      { x: -50, y: this.height * 0.35 },
-      { x: this.width + 50, y: this.height * 0.65 },
-      { x: this.width * 0.35, y: -50 },
-      { x: this.width * 0.65, y: this.height + 50 },
+      { x: -60, y: this.height * 0.2 },
+      { x: -60, y: this.height * 0.5 },
+      { x: -60, y: this.height * 0.8 },
+      { x: this.width + 60, y: this.height * 0.2 },
+      { x: this.width + 60, y: this.height * 0.5 },
+      { x: this.width + 60, y: this.height * 0.8 },
+      { x: this.width * 0.2, y: -60 },
+      { x: this.width * 0.5, y: -60 },
+      { x: this.width * 0.8, y: -60 },
+      { x: this.width * 0.2, y: this.height + 60 },
+      { x: this.width * 0.5, y: this.height + 60 },
+      { x: this.width * 0.8, y: this.height + 60 },
+      { x: -60, y: -60 },
+      { x: this.width + 60, y: -60 },
+      { x: -60, y: this.height + 60 },
+      { x: this.width + 60, y: this.height + 60 },
+      { x: -60, y: this.height * 0.35 },
+      { x: this.width + 60, y: this.height * 0.65 },
+      { x: this.width * 0.35, y: -60 },
+      { x: this.width * 0.65, y: this.height + 60 },
     ];
 
     this.agentsData.forEach((agent, idx) => {
       const entryPos = edgePositions[idx % edgePositions.length];
-      const speed = 3.0 + ((idx * 23) % 25) / 10;
+      const speed = 3.2 + ((idx * 23) % 25) / 10;
       const agility = 0.05 + ((idx * 17) % 10) / 100;
 
       this.agentStates.set(agent.id, {
@@ -143,8 +147,10 @@ export class AgentOrchestrator {
   public init(): void {
     if (typeof document === 'undefined') return;
 
-    // Apply active construction class to isolate DOM and hide unfinished targets
+    // Isolate DOM and prevent any flash
+    document.documentElement.classList.add('is-booting');
     document.body.classList.add('construction-active');
+
     const allTargets = document.querySelectorAll<HTMLElement>('[data-build-target]');
     allTargets.forEach((el) => {
       el.setAttribute('data-build-status', 'unbuilt');
@@ -158,7 +164,7 @@ export class AgentOrchestrator {
     this.masterTimeline = gsap.timeline({
       paused: true,
       onUpdate: () => {
-        const progress = Math.round(this.masterTimeline?.progress() ?? 0 * 100);
+        const progress = Math.round((this.masterTimeline?.progress() ?? 0) * 100);
         this.callbacks.onOverallProgress(progress);
       },
       onComplete: () => {
@@ -166,34 +172,36 @@ export class AgentOrchestrator {
       },
     });
 
-    // ---------------- STAGE 0: BLANK CANVAS (0s -> 1.5s) ----------------
+    // ---------------- 1. BOOTING (0.0s -> 0.6s) ----------------
     this.masterTimeline.add(() => {
-      this.setStage('blank');
+      this.setStage('BOOTING');
       this.callbacks.onBootMessage('INITIALIZING CREATIVE ENVIRONMENT');
     }, 0.0);
 
+    // ---------------- 2. CANVAS_INITIALIZED (0.6s -> 1.5s) ----------------
     this.masterTimeline.add(() => {
+      this.setStage('CANVAS_INITIALIZED');
       this.callbacks.onBootMessage('ESTABLISHING SHARED CANVAS');
-    }, 0.5);
+    }, 0.6);
 
     this.masterTimeline.add(() => {
       this.callbacks.onBootMessage('SYNCHRONIZING AGENT CLUSTER');
-    }, 1.0);
+    }, 1.1);
 
-    // ---------------- STAGE 1: AGENT ARRIVAL (1.5s -> 3.2s) ----------------
+    // ---------------- 3. AGENTS_ENTERING (1.5s -> 3.2s) ----------------
     this.masterTimeline.add(() => {
-      this.setStage('arrival');
+      this.setStage('AGENTS_ENTERING');
     }, 1.5);
 
-    // ---------------- STAGE 2: CIRCULAR FORMATION (3.2s -> 6.0s) ----------------
+    // ---------------- 4. FORMATION_ACTIVE (3.2s -> 6.0s) ----------------
     this.masterTimeline.add(() => {
-      this.setStage('circular');
+      this.setStage('FORMATION_ACTIVE');
       this.callbacks.onSyncTelemetry('ORBIT_R: 220PX | ANGULAR_V: 1.4 RAD/S | COHESION: 100%');
     }, 3.2);
 
-    // ---------------- STAGE 3: RADIAL DEPLOYMENT (6.0s -> 7.4s) ----------------
+    // ---------------- 5. DEPLOYMENT_ACTIVE (6.0s -> 7.4s) ----------------
     this.masterTimeline.add(() => {
-      this.setStage('radial');
+      this.setStage('DEPLOYMENT_ACTIVE');
       const center = this.circularEngine.getCenter();
       this.radialController.updateCenter(center.x, center.y);
       this.radialController.triggerBurst(
@@ -202,15 +210,19 @@ export class AgentOrchestrator {
       );
     }, 6.0);
 
-    // ---------------- STAGE 4: ACTUAL CONSTRUCTION - SECTION 1 HERO (7.4s -> 12.0s) ----------------
+    // ---------------- 6. CONSTRUCTION_ACTIVE - SECTION 1: HERO (7.4s -> 12.0s) ----------------
     this.masterTimeline.add(() => {
-      this.setStage('active');
+      this.setStage('CONSTRUCTION_ACTIVE');
+      // Unshield main content so physical builders can render on DOM targets
+      if (typeof document !== 'undefined') {
+        document.documentElement.classList.remove('is-booting');
+      }
       this.dispatchSectionTasks('hero');
     }, 7.4);
 
-    // ---------------- STAGE 5: SECTION COMPLETION & SCROLLING ----------------
-    // SECTION 2: ABOUT (12.0s)
+    // ---------------- 7. SECTION_TRANSITION - SECTION 2: ABOUT (12.0s) ----------------
     this.masterTimeline.add(() => {
+      this.setStage('SECTION_TRANSITION');
       this.sectionCoordinator.notifySectionCompletion('hero');
       this.cameraController.scrollToSection('about');
       this.dispatchSectionTasks('about');
@@ -218,6 +230,7 @@ export class AgentOrchestrator {
 
     // SECTION 3: PROJECTS (15.5s)
     this.masterTimeline.add(() => {
+      this.setStage('SECTION_TRANSITION');
       this.sectionCoordinator.notifySectionCompletion('about');
       this.cameraController.scrollToSection('projects');
       this.dispatchSectionTasks('projects');
@@ -225,6 +238,7 @@ export class AgentOrchestrator {
 
     // SECTION 4: ARCHITECTURE (19.0s)
     this.masterTimeline.add(() => {
+      this.setStage('SECTION_TRANSITION');
       this.sectionCoordinator.notifySectionCompletion('projects');
       this.cameraController.scrollToSection('architecture');
       this.dispatchSectionTasks('architecture');
@@ -232,6 +246,7 @@ export class AgentOrchestrator {
 
     // SECTION 5: TECH STACK & EXPERIMENTS (22.5s)
     this.masterTimeline.add(() => {
+      this.setStage('SECTION_TRANSITION');
       this.sectionCoordinator.notifySectionCompletion('architecture');
       this.cameraController.scrollToSection('stack');
       this.dispatchSectionTasks('stack');
@@ -239,19 +254,25 @@ export class AgentOrchestrator {
 
     // SECTION 6: CONTACT & RETURNING TO APEX (25.5s)
     this.masterTimeline.add(() => {
+      this.setStage('SECTION_TRANSITION');
       this.sectionCoordinator.notifySectionCompletion('stack');
       this.cameraController.scrollToSection('contact');
       this.dispatchSectionTasks('contact');
     }, 25.5);
 
-    // RETURN CAMERA TO TOP & FINALIZE (28.0s)
+    // ---------------- 8. FINAL_REVEAL (28.0s) ----------------
     this.masterTimeline.add(() => {
+      this.setStage('FINAL_REVEAL');
       this.sectionCoordinator.notifySectionCompletion('contact');
       this.cameraController.returnToTop();
     }, 28.0);
 
-    // End timeline padding
-    this.masterTimeline.to({}, { duration: 0.8 }, 29.0);
+    // ---------------- 9. INTERACTIVE (29.0s) ----------------
+    this.masterTimeline.add(() => {
+      this.setStage('INTERACTIVE');
+    }, 29.0);
+
+    this.masterTimeline.to({}, { duration: 0.5 }, 29.5);
   }
 
   private setStage(stage: OrchestratorStage): void {
@@ -265,7 +286,6 @@ export class AgentOrchestrator {
     const sectionTasks = this.taskQueue.getSectionTasks(sectionId);
 
     sectionTasks.forEach((task, index) => {
-      // Find suitable agent
       const agentId = task.preferredAgentId || this.agentsData[index % this.agentsData.length].id;
       const state = this.agentStates.get(agentId);
       if (!state) return;
@@ -282,14 +302,12 @@ export class AgentOrchestrator {
         state.targetX = rect.left + rect.width * offsetX;
         state.targetY = rect.top + rect.height * offsetY;
 
-        // Apply progressive physical construction stages
         el.setAttribute('data-build-status', 'wireframe');
 
         window.setTimeout(() => {
           if (this.isDestroyed || this.isCompleted) return;
           el.setAttribute('data-build-status', 'drawing');
 
-          // Trigger physical construction strategy
           switch (task.strategy) {
             case 'typography':
               ConstructionStrategies.typography({ containerSelector: task.targetSelector });
@@ -347,7 +365,6 @@ export class AgentOrchestrator {
         }, nextTask.durationMs / this.speedMultiplier);
       }
     } else {
-      // Roam naturally nearby active viewport center
       state.activity = '';
       state.targetX = this.width * 0.15 + Math.random() * this.width * 0.7;
       state.targetY = this.height * 0.15 + Math.random() * this.height * 0.7;
@@ -370,23 +387,20 @@ export class AgentOrchestrator {
         this.callbacks.onParticlesUpdate(particles);
       }
 
-      // Compute agent positions based on current stage
       const renderedStates: FreestyleAgentState[] = [];
 
       this.agentsData.forEach((agent, idx) => {
         const state = this.agentStates.get(agent.id);
         if (!state) return;
 
-        if (this.currentStage === 'blank') {
-          // Agents remain just offscreen during blank canvas stage
+        if (this.currentStage === 'BOOTING' || this.currentStage === 'CANVAS_INITIALIZED') {
           state.x = state.entryPos.x;
           state.y = state.entryPos.y;
           state.angle = 0;
           state.trail = [];
-        } else if (this.currentStage === 'arrival' || this.currentStage === 'circular') {
-          // Circular orbit convergence and rotation
+        } else if (this.currentStage === 'AGENTS_ENTERING' || this.currentStage === 'FORMATION_ACTIVE') {
           const formationProgress =
-            this.currentStage === 'arrival'
+            this.currentStage === 'AGENTS_ENTERING'
               ? Math.min(1, stageElapsedSec / 1.7)
               : 1;
 
@@ -401,15 +415,12 @@ export class AgentOrchestrator {
           state.y = orbitTarget.y;
           state.angle = orbitTarget.angle;
 
-          // Record trail
           state.trail.unshift({ x: state.x, y: state.y });
           if (state.trail.length > 5) state.trail.pop();
-        } else if (this.currentStage === 'radial') {
-          // Expanding outward rapidly
+        } else if (this.currentStage === 'DEPLOYMENT_ACTIVE') {
           const role = AGENT_DEPLOYMENT_ROLES[idx % AGENT_DEPLOYMENT_ROLES.length];
           state.activity = role.roleTitle;
 
-          // Push towards assignment targets
           const angle = (idx / this.agentsData.length) * (Math.PI * 2);
           const expansionSpeed = 12 * this.speedMultiplier;
           state.x += Math.cos(angle) * expansionSpeed;
@@ -419,7 +430,7 @@ export class AgentOrchestrator {
           state.trail.unshift({ x: state.x, y: state.y });
           if (state.trail.length > 6) state.trail.pop();
         } else {
-          // Active Construction: Natural curved physics towards target
+          // Construction & Transition Stages: Organic Bézier physics
           const dx = state.targetX - state.x;
           const dy = state.targetY - state.y;
           const dist = Math.hypot(dx, dy);
@@ -436,7 +447,6 @@ export class AgentOrchestrator {
 
             state.angle = (Math.atan2(state.vy, state.vx) * 180) / Math.PI;
           } else {
-            // Slight jitter at work location
             state.x += (Math.random() - 0.5) * 0.8;
             state.y += (Math.random() - 0.5) * 0.8;
           }
@@ -503,7 +513,10 @@ export class AgentOrchestrator {
     }
 
     if (typeof document !== 'undefined') {
+      document.documentElement.classList.remove('is-booting');
+      document.body.classList.remove('is-booting');
       document.body.classList.remove('construction-active');
+
       const allTargets = document.querySelectorAll<HTMLElement>('[data-build-target]');
       allTargets.forEach((el) => {
         el.setAttribute('data-build-status', 'assembled');
@@ -513,7 +526,7 @@ export class AgentOrchestrator {
     }
 
     this.callbacks.onOverallProgress(100);
-    this.callbacks.onStageChange('complete');
+    this.callbacks.onStageChange('INTERACTIVE');
     this.callbacks.onComplete();
   }
 
@@ -527,7 +540,10 @@ export class AgentOrchestrator {
       this.animFrameId = null;
     }
     if (typeof document !== 'undefined') {
+      document.documentElement.classList.remove('is-booting');
+      document.body.classList.remove('is-booting');
       document.body.classList.remove('construction-active');
+
       const allTargets = document.querySelectorAll<HTMLElement>('[data-build-target]');
       allTargets.forEach((el) => {
         el.setAttribute('data-build-status', 'assembled');

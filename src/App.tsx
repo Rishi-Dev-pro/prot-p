@@ -26,10 +26,19 @@ export const App: React.FC = () => {
 
   const handleIntroComplete = useCallback(() => {
     setIntroActive(false);
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.remove('is-booting');
+      document.body.classList.remove('is-booting');
+      document.body.classList.remove('construction-active');
+    }
   }, []);
 
   const handleReplayIntro = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.add('is-booting');
+      document.body.classList.add('construction-active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     setIntroActive(true);
   }, []);
 
@@ -94,7 +103,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main Portfolio Sections */}
-      <main className="relative z-10 select-auto">
+      <main id="main-content" className="relative z-10 select-auto">
         {/* SECTION B: HERO */}
         <Hero
           onOpenCommandPalette={() => setCommandPaletteOpen(true)}

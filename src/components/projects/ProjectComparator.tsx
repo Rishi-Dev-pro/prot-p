@@ -295,3 +295,4 @@ export const ProjectComparator: React.FC<ProjectComparatorProps> = ({
     </div>
   );
 };
+

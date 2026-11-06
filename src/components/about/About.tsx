@@ -1,6 +1,7 @@
 import React from 'react';
 import { SectionHeading } from '../common/SectionHeading';
 import { Principles } from './Principles';
+import { EngineeringTimeline } from '../timeline/EngineeringTimeline';
 import { GraduationCap, MapPin, Compass, Terminal } from 'lucide-react';
 
 export const About: React.FC = () => {
@@ -78,6 +79,9 @@ export const About: React.FC = () => {
             <Principles />
           </div>
         </div>
+
+        {/* Engineering Chronology & Progression Timeline */}
+        <EngineeringTimeline />
       </div>
     </section>
   );

@@ -125,8 +125,43 @@ PRIMARY FOCUS: Agentic AI, Computer Vision, Distributed Systems, High-Concurrenc
   5. callbuddy-ai - Telephony AI Copilot (Realtime STT/TTS room broker)
   6. edge-ai      - Edge Road Defect Detector (YOLOv8n ONNX, 28 FPS inference)
 
-Type "open <id>" to view details, e.g., "open pirate-civ"`,
+Type "open <id>" or directly type "ahi", "aether", "pirate" to view details.`,
         });
+        break;
+
+      case 'ahi':
+        if (onOpenProject) {
+          onOpenProject('ahi');
+          newHistory.push({
+            id: Date.now() + 1,
+            type: 'success',
+            text: 'Opening AHI (Adaptive Human Interface) explorer...',
+          });
+        }
+        break;
+
+      case 'aether':
+      case 'aether-os':
+        if (onOpenProject) {
+          onOpenProject('aether-os');
+          newHistory.push({
+            id: Date.now() + 1,
+            type: 'success',
+            text: 'Opening AETHER OS (Spatial Vision HUD) explorer...',
+          });
+        }
+        break;
+
+      case 'pirate':
+      case 'pirate-civ':
+        if (onOpenProject) {
+          onOpenProject('pirate-civ');
+          newHistory.push({
+            id: Date.now() + 1,
+            type: 'success',
+            text: 'Opening PIRATE-CIV (6-Island Marketplace with 695/695 tests) explorer...',
+          });
+        }
         break;
 
       case 'open':
@@ -366,3 +401,4 @@ Type "open <id>" to view details, e.g., "open pirate-civ"`,
     </div>
   );
 };
+
