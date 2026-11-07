@@ -20,7 +20,7 @@ export const HeroTypography: React.FC = () => {
           data-build-status="unbuilt"
           className="overflow-hidden"
         >
-          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-display font-extrabold tracking-tight uppercase text-[#F3F3F5] leading-[0.9]">
+          <h1 className="text-4xl xs:text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-display font-extrabold tracking-tight uppercase text-[#F3F3F5] leading-[0.9]">
             <span>ENGINEERING</span>
           </h1>
         </div>
@@ -31,7 +31,7 @@ export const HeroTypography: React.FC = () => {
           data-build-status="unbuilt"
           className="overflow-hidden flex items-baseline gap-4"
         >
-          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-display font-light tracking-tight uppercase text-white/40 hover:text-white/70 leading-[0.9] transition-colors duration-300">
+          <h1 className="text-4xl xs:text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-display font-light tracking-tight uppercase text-white/40 hover:text-white/70 leading-[0.9] transition-colors duration-300">
             THE
           </h1>
           <div className="hidden sm:block h-[1px] flex-1 bg-gradient-to-r from-white/20 via-white/10 to-transparent" />
@@ -39,13 +39,25 @@ export const HeroTypography: React.FC = () => {
 
         {/* Line 3: UNEXPECTED. */}
         <div
-          data-build-target="hero-line-3"
-          data-build-status="unbuilt"
+          id="hero-line-3"
           className="overflow-hidden"
         >
-          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-display font-extrabold tracking-tight uppercase text-[#F3F3F5] leading-[0.9] flex items-baseline gap-2">
-            <span>UNEXPECTED</span>
-            <span className="text-[#FF414D] text-4xl sm:text-6xl md:text-8xl lg:text-9xl">.</span>
+          <h1 className="text-4xl xs:text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-display font-extrabold tracking-tight uppercase text-[#F3F3F5] leading-[0.9] flex items-baseline gap-1 sm:gap-2">
+            <span
+              id="hero-word-unexpected"
+              data-build-target="hero-unexpected"
+              data-build-status="unbuilt"
+              className="inline-block"
+            >
+              UNEXPECTED
+            </span>
+            <span
+              data-build-target="hero-dot"
+              data-build-status="unbuilt"
+              className="text-[#FF414D] text-3xl xs:text-4xl sm:text-6xl md:text-8xl lg:text-9xl inline-block"
+            >
+              .
+            </span>
           </h1>
         </div>
       </div>

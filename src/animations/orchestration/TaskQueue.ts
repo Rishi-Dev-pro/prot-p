@@ -1,3 +1,5 @@
+import { componentRegistry } from '../construction/ComponentRegistry';
+
 export type ConstructionSectionId =
   | 'hero'
   | 'about'
@@ -122,20 +124,20 @@ export const INITIAL_CONSTRUCTION_TASKS: QueuedTask[] = [
     id: 'hero-line-2',
     sectionId: 'hero',
     targetSelector: '[data-build-target="hero-line-2"]',
-    preferredAgentId: 'AGENT_02',
+    preferredAgentId: 'AGENT_06',
     taskLabel: 'GLYPHS: "THE"',
     strategy: 'typography',
-    durationMs: 850,
+    durationMs: 750,
     wave: 2,
     offsetPct: { x: 0.2, y: 0.5 },
     status: 'pending',
   },
   {
-    id: 'hero-line-3',
+    id: 'hero-unexpected',
     sectionId: 'hero',
-    targetSelector: '[data-build-target="hero-line-3"]',
+    targetSelector: '[data-build-target="hero-unexpected"]',
     preferredAgentId: 'AGENT_02',
-    taskLabel: 'GLYPHS: "UNEXPECTED."',
+    taskLabel: 'GLYPHS: "UNEXPECTED"',
     strategy: 'typography',
     durationMs: 1200,
     wave: 2,
@@ -143,10 +145,22 @@ export const INITIAL_CONSTRUCTION_TASKS: QueuedTask[] = [
     status: 'pending',
   },
   {
+    id: 'hero-dot',
+    sectionId: 'hero',
+    targetSelector: '[data-build-target="hero-dot"]',
+    preferredAgentId: 'AGENT_03',
+    taskLabel: 'SYNTHESIZE: ACCENT_DOT',
+    strategy: 'button',
+    durationMs: 400,
+    wave: 2,
+    offsetPct: { x: 0.5, y: 0.5 },
+    status: 'pending',
+  },
+  {
     id: 'hero-subhead',
     sectionId: 'hero',
     targetSelector: '[data-build-target="hero-subhead"]',
-    preferredAgentId: 'AGENT_06',
+    preferredAgentId: 'AGENT_05',
     taskLabel: 'TYPESET: POSITIONING',
     strategy: 'typography',
     durationMs: 850,
@@ -792,6 +806,26 @@ export class TaskQueueManager {
     agentId: string,
     currentSection: ConstructionSectionId
   ): QueuedTask | null {
+    // 0. Proactively auto-complete any tasks whose targets are hidden by responsive CSS (e.g. mobile hidden desktop nav items)
+    this.tasks
+      .filter((t) => t.sectionId === currentSection && t.status === 'pending')
+      .forEach((t) => {
+        const comp = componentRegistry.get(t.id);
+        if (comp && comp.isResponsiveHidden) {
+          t.status = 'completed';
+          return;
+        }
+        if (typeof document !== 'undefined') {
+          const el = document.querySelector<HTMLElement>(t.targetSelector);
+          if (el) {
+            const cs = window.getComputedStyle(el);
+            if (cs.display === 'none' || (el.offsetWidth === 0 && el.offsetHeight === 0 && el.offsetParent === null)) {
+              t.status = 'completed';
+            }
+          }
+        }
+      });
+
     // 1. Prioritize preferred task for this agent in currentSection (lowest wave first)
     const preferredTasks = this.tasks
       .filter(

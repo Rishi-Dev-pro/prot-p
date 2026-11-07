@@ -470,3 +470,4 @@ export class FinaleChoreographyController {
     return a + diff * t;
   }
 }
+

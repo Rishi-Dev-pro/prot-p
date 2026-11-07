@@ -150,7 +150,7 @@ export function writeCharacters(options: CharacterWriterOptions): CharacterWrite
  * Recursively inspects leaf text nodes and wraps individual characters in spans
  * with opacity: 0 to reserve the exact layout without any layout shifting.
  */
-function prepareTextSpans(root: HTMLElement): HTMLElement[] {
+export function prepareTextSpans(root: HTMLElement): HTMLElement[] {
   if (root.getAttribute('data-chars-prepared') === 'true') {
     return Array.from(root.querySelectorAll<HTMLElement>('.build-char-span'));
   }

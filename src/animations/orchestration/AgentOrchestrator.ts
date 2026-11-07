@@ -13,6 +13,8 @@ import { ConstructionStrategies } from '../construction/ConstructionStrategies';
 import { BlueprintManager } from '../construction/BlueprintManager';
 import { FreestyleAgentState } from '../construction/FreestyleAgentEngine';
 import { FinaleChoreographyController, FinaleStage } from './FinaleChoreography';
+import { initializationManager } from '../initialization/InitializationManager';
+import { componentRegistry } from '../construction/ComponentRegistry';
 
 export type OrchestratorStage =
   | 'BOOTING'
@@ -192,6 +194,17 @@ export class AgentOrchestrator {
     document.documentElement.classList.add('is-booting');
     document.body.classList.add('construction-active');
 
+    // Start centralized initialization manager parallel pipeline
+    initializationManager.startPipeline().catch((err) => {
+      console.warn('[AgentOrchestrator] Initialization pipeline warning:', err);
+    });
+
+    // Scan all constructible components in DOM
+    const scanResult = componentRegistry.scanDOM();
+    if (import.meta.env.DEV && scanResult.totalExpected > 0) {
+      console.log(`[ComponentRegistry] Catalogued ${scanResult.totalRegistered} constructible targets (${scanResult.totalVisible} visible, ${scanResult.totalResponsiveHidden} responsive-hidden)`);
+    }
+
     const allTargets = document.querySelectorAll<HTMLElement>('[data-build-target]');
     allTargets.forEach((el) => {
       el.setAttribute('data-build-status', 'unbuilt');
@@ -253,6 +266,7 @@ export class AgentOrchestrator {
 
     // ---------------- 6. SECTION 1: HERO & NAVIGATION (7.4s -> 14.5s) ----------------
     this.masterTimeline.add(() => {
+      initializationManager.markOpeningCursorMovementComplete();
       this.setStage('CONSTRUCTION_ACTIVE');
       if (typeof document !== 'undefined') {
         document.documentElement.classList.remove('is-booting');
@@ -475,6 +489,13 @@ export class AgentOrchestrator {
       const rawTargetY = rect.top + rect.height * offsetY;
       state.targetX = Math.max(25, Math.min(this.width - 25, rawTargetX));
       state.targetY = Math.max(25, Math.min(this.height - 35, rawTargetY));
+    } else {
+      // Missing element fallback: mark completed immediately so agent is never stalled
+      task.status = 'completed';
+      state.mode = 'IDLE';
+      state.currentTask = null;
+      const nextTask = this.taskQueue.getNextTaskForAgent(agentId, this.activeSection);
+      if (nextTask) this.assignTaskToAgent(agentId, nextTask);
     }
   }
 
@@ -485,10 +506,21 @@ export class AgentOrchestrator {
   private startComponentConstruction(agentId: string, task: QueuedTask): void {
     const state = this.agentStates.get(agentId);
     const el = document.querySelector<HTMLElement>(task.targetSelector);
-    if (!el || !state) return;
+    if (!el || !state) {
+      task.status = 'completed';
+      if (state) {
+        state.mode = 'IDLE';
+        state.isWorking = false;
+        state.currentTask = null;
+        const next = this.taskQueue.getNextTaskForAgent(agentId, this.activeSection);
+        if (next) this.assignTaskToAgent(agentId, next);
+      }
+      return;
+    }
 
     // 1. Reveal element for progressive builder execution
     el.setAttribute('data-build-status', 'drawing');
+    componentRegistry.updateStatus(task.id, 'drawing');
 
     const durationSec = task.durationMs / 1000 / this.speedMultiplier;
 
@@ -506,8 +538,15 @@ export class AgentOrchestrator {
 
       // Component successfully assembled
       el.setAttribute('data-build-status', 'assembled');
+      componentRegistry.updateStatus(task.id, 'assembled');
       BlueprintManager.cleanupElement(el);
       this.taskQueue.markTaskComplete(task.id);
+
+      // Ensure all character spans inside are made 100% visible
+      el.querySelectorAll<HTMLElement>('.build-char-span').forEach((span) => {
+        span.style.opacity = '1';
+        span.style.visibility = 'visible';
+      });
       state.isWorking = false;
       state.mode = 'COMPLETED';
       state.currentTask = null;
@@ -920,6 +959,7 @@ export class AgentOrchestrator {
         el.setAttribute('data-build-status', 'assembled');
         gsap.set(el, { clearProps: 'all' });
       });
+      componentRegistry.getAll().forEach((c) => componentRegistry.updateStatus(c.id, 'assembled'));
 
       // Clean up any temporary blueprint overlays & guides
       BlueprintManager.cleanupAll();
@@ -998,6 +1038,7 @@ export class AgentOrchestrator {
         el.setAttribute('data-build-status', 'assembled');
         gsap.set(el, { clearProps: 'all' });
       });
+      componentRegistry.getAll().forEach((c) => componentRegistry.updateStatus(c.id, 'assembled'));
 
       // Clean up any temporary blueprint overlays & guides
       BlueprintManager.cleanupAll();

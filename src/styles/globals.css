@@ -151,6 +151,12 @@ body.construction-active [data-build-status="assembled"],
   clip-path: none !important;
 }
 
+[data-build-status="assembled"] .build-char-span,
+body:not(.construction-active) .build-char-span {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
 
 @keyframes laser-sweep {
   0% {
