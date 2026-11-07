@@ -1,3 +1,17 @@
+# Dependencies
+node_modules
+dist
+dist-ssr
+
+# Local environment & secrets
+.env
+.env.local
+.env.*.local
+*.local
+
+# Vercel CLI cache
+.vercel
+
 # Logs
 logs
 *.log
@@ -6,11 +20,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
 
 # Editor directories and files
 .vscode/*
@@ -23,5 +32,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# Scratch & test scripts
+# Scratch & automated test scripts
 scratch/
+*.cjs

@@ -214,3 +214,4 @@ class ComponentRegistryClass {
 }
 
 export const componentRegistry = new ComponentRegistryClass();
+

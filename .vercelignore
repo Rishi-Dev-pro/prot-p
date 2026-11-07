@@ -1,0 +1,35 @@
+# Vercel Deployment Ignore
+# Exclude local development scripts, caches, and scratch files from build uploads
+
+# Development & Test Scripts
+scratch/
+*.cjs
+*.mjs
+test_*.js
+verify_*.js
+
+# Local Logs & Reports
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Editor & IDE configs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# Version Control & Local metadata
+.git/
+.gitignore
+
+# Documentation & Scratch Artifacts
+*.md
+!README.md
+!DEPLOYMENT.md
