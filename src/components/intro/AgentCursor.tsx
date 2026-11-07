@@ -13,6 +13,7 @@ export interface AgentCursorViewProps {
 }
 
 export const AgentCursor: React.FC<AgentCursorViewProps> = ({
+  id,
   color,
   x,
   y,
@@ -21,6 +22,7 @@ export const AgentCursor: React.FC<AgentCursorViewProps> = ({
 }) => {
   return (
     <div
+      data-agent-cursor={id}
       className="fixed pointer-events-none z-50 select-none will-change-transform"
       style={{
         left: 0,

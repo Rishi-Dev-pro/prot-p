@@ -26,7 +26,7 @@ export const App: React.FC = () => {
   const [externalProject, setExternalProject] = useState<FlagshipProject | null>(null);
 
   const handleIntroComplete = useCallback(() => {
-    setIntroActive(false);
+    // Preserve IntroExperience mounted so the 6 agent cursors remain visible at their resting stations
     if (typeof document !== 'undefined') {
       document.documentElement.classList.remove('is-booting');
       document.body.classList.remove('is-booting');
@@ -40,7 +40,12 @@ export const App: React.FC = () => {
       document.body.classList.add('construction-active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    setIntroActive(true);
+    const globalOrch = (window as unknown as { __orchestrator?: { restart: () => void } }).__orchestrator;
+    if (globalOrch) {
+      globalOrch.restart();
+    } else {
+      setIntroActive(true);
+    }
   }, []);
 
   const handleOpenProjectById = useCallback((id: string) => {

@@ -34,8 +34,8 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
 
   const orchestratorRef = useRef<AgentOrchestrator | null>(null);
 
-  // 6 curated active agents on desktop, 4 on mobile
-  const activeAgents = useRef(isMobile ? MOBILE_AGENT_REGISTRY : AGENT_REGISTRY).current;
+  // Exactly 6 curated active agents across both desktop & mobile for symmetrical 6-node finale
+  const activeAgents = useRef(AGENT_REGISTRY).current;
 
   const handleSkip = useCallback(() => {
     if (orchestratorRef.current) {
@@ -117,8 +117,6 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
     };
   }, [activeAgents, onComplete, prefersReduced, handleSkip, handleToggleSpeed]);
 
-  if (isDone) return null;
-
   return (
     <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden select-none">
       {/* Stage 0-4 Canvas Backdrop: Symmetrical, deep blueprint canvas with subtle radial illumination */}
@@ -194,17 +192,28 @@ export const IntroExperience: React.FC<IntroExperienceProps> = ({ onComplete }) 
         <ConstructionOverlay />
       )}
 
-      {/* Floating Speed/Skip Controls */}
-      <ConstructionTelemetry
-        progress={progress}
-        speed={speed}
-        onToggleSpeed={handleToggleSpeed}
-        onSkip={handleSkip}
-      />
+      {/* Floating Speed/Skip Controls (Visible only during active construction before farewell sequence) */}
+      {stage !== 'ALL_SECTIONS_COMPLETED' &&
+        stage !== 'FINAL_SCROLL_STARTED' &&
+        stage !== 'FINAL_SCROLL_COMPLETED' &&
+        stage !== 'DANCE_STARTED' &&
+        stage !== 'CIRCLE_FORMATION' &&
+        stage !== 'CIRCLE_HOLD' &&
+        stage !== 'OUTWARD_DEPARTURE' &&
+        stage !== 'FINAL_RESTING_STATE' &&
+        stage !== 'INTERACTIVE' &&
+        !isDone && (
+          <ConstructionTelemetry
+            progress={progress}
+            speed={speed}
+            onToggleSpeed={handleToggleSpeed}
+            onSkip={handleSkip}
+          />
+        )}
 
-      {/* 6-Agent Precision Cursor Layer (Isolated zero-overhead DOM rendering) */}
+      {/* 6-Agent Precision Cursor Layer: Stays permanently visible into final resting state */}
       <AgentCursorLayer
-        visible={stage !== 'BOOTING' && stage !== 'CANVAS_INITIALIZED' && !isDone}
+        visible={stage !== 'BOOTING' && stage !== 'CANVAS_INITIALIZED'}
       />
     </div>
   );

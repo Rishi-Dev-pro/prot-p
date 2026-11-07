@@ -27,7 +27,15 @@ export const CentralCore: React.FC<CentralCoreProps> = ({
     stage === 'CONSTRUCTION_ACTIVE' ||
     stage === 'SECTION_TRANSITION' ||
     stage === 'FINAL_REVEAL' ||
-    stage === 'INTERACTIVE'
+    stage === 'INTERACTIVE' ||
+    stage === 'ALL_SECTIONS_COMPLETED' ||
+    stage === 'FINAL_SCROLL_STARTED' ||
+    stage === 'FINAL_SCROLL_COMPLETED' ||
+    stage === 'DANCE_STARTED' ||
+    stage === 'CIRCLE_FORMATION' ||
+    stage === 'CIRCLE_HOLD' ||
+    stage === 'OUTWARD_DEPARTURE' ||
+    stage === 'FINAL_RESTING_STATE'
   ) {
     return null;
   }

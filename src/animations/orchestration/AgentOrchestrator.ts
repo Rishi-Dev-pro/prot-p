@@ -12,6 +12,7 @@ import { CameraController } from '../camera/CameraController';
 import { ConstructionStrategies } from '../construction/ConstructionStrategies';
 import { BlueprintManager } from '../construction/BlueprintManager';
 import { FreestyleAgentState } from '../construction/FreestyleAgentEngine';
+import { FinaleChoreographyController, FinaleStage } from './FinaleChoreography';
 
 export type OrchestratorStage =
   | 'BOOTING'
@@ -21,6 +22,14 @@ export type OrchestratorStage =
   | 'DEPLOYMENT_ACTIVE'
   | 'CONSTRUCTION_ACTIVE'
   | 'SECTION_TRANSITION'
+  | 'ALL_SECTIONS_COMPLETED'
+  | 'FINAL_SCROLL_STARTED'
+  | 'FINAL_SCROLL_COMPLETED'
+  | 'DANCE_STARTED'
+  | 'CIRCLE_FORMATION'
+  | 'CIRCLE_HOLD'
+  | 'OUTWARD_DEPARTURE'
+  | 'FINAL_RESTING_STATE'
   | 'FINAL_REVEAL'
   | 'INTERACTIVE';
 
@@ -31,7 +40,8 @@ export type AgentMode =
   | 'AGENT_ARRIVED'
   | 'WORKING'
   | 'COMPLETED'
-  | 'REASSIGNING';
+  | 'REASSIGNING'
+  | 'RESTING';
 
 export interface OrchestratorCallbacks {
   onStageChange: (stage: OrchestratorStage) => void;
@@ -74,6 +84,7 @@ export class AgentOrchestrator {
   private taskQueue: TaskQueueManager;
   private sectionCoordinator: SectionCoordinator;
   private cameraController: CameraController;
+  private finaleController: FinaleChoreographyController;
 
   private agentStates: Map<string, AgentLiveState> = new Map();
   private width = 1440;
@@ -97,6 +108,7 @@ export class AgentOrchestrator {
       this.width = window.innerWidth;
       this.height = window.innerHeight;
       (window as unknown as { __ORCHESTRATOR_ACTIVE__?: boolean }).__ORCHESTRATOR_ACTIVE__ = true;
+      window.addEventListener('resize', this.handleResize);
     }
 
     // Exactly 6-agent symmetrical hexagonal circular formation
@@ -113,8 +125,27 @@ export class AgentOrchestrator {
       this.callbacks.onBannerNotification(banner);
     });
 
+    this.finaleController = new FinaleChoreographyController(
+      this.width,
+      this.height,
+      this.agentsData,
+      (stage: FinaleStage) => {
+        this.setStage(stage as OrchestratorStage);
+      }
+    );
+
     this.initAgentStates();
   }
+
+  private handleResize = (): void => {
+    if (typeof window === 'undefined') return;
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.circularEngine.updateViewport(this.width, this.height, this.agentsData.length);
+    const center = this.circularEngine.getCenter();
+    this.radialController.updateCenter(center.x, center.y);
+    this.finaleController.updateViewport(this.width, this.height);
+  };
 
   private initAgentStates(): void {
     // 6 Symmetrical perimeter entry coordinates around the viewport
@@ -174,11 +205,11 @@ export class AgentOrchestrator {
     this.masterTimeline = gsap.timeline({
       paused: true,
       onUpdate: () => {
-        const progress = Math.round((this.masterTimeline?.progress() ?? 0) * 100);
+        const progress = Math.min(100, Math.round((this.masterTimeline?.progress() ?? 0) * 100));
         this.callbacks.onOverallProgress(progress);
       },
       onComplete: () => {
-        this.finalize();
+        // Master timeline tasks complete; FinaleChoreographyController handles the finale & resting state
       },
     });
 
@@ -317,20 +348,41 @@ export class AgentOrchestrator {
       }, 750 / this.speedMultiplier);
     }, 45.5);
 
-    // ---------------- 13. FINAL_REVEAL: RETURN TO APEX (50.0s -> 52.5s) ----------------
+    // ---------------- 13. ALL_SECTIONS_COMPLETED & FINALE CHOREOGRAPHY (50.0s) ----------------
     this.masterTimeline.add(() => {
-      this.setStage('FINAL_REVEAL');
       this.completeRemainingSectionTasks('contact');
       this.sectionCoordinator.notifySectionCompletion('contact');
-      this.cameraController.returnToTop();
+
+      // Unhide and solidify all DOM targets cleanly
+      if (typeof document !== 'undefined') {
+        const allTargets = document.querySelectorAll<HTMLElement>('[data-build-target]');
+        allTargets.forEach((el) => {
+          el.setAttribute('data-build-status', 'assembled');
+          BlueprintManager.cleanupElement(el);
+          gsap.set(el, { clearProps: 'all' });
+        });
+        BlueprintManager.cleanupAll();
+        document.querySelectorAll('.blueprint-outline-svg, .char-baseline-guide').forEach((el) => {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        });
+        document.querySelectorAll<HTMLElement>('.build-char-span').forEach((span) => {
+          span.style.opacity = '1';
+          span.style.visibility = 'visible';
+        });
+      }
+
+      // Collect current live positions of all 6 agents
+      const currentPos = new Map<string, { x: number; y: number; angle: number }>();
+      this.agentStates.forEach((state, id) => {
+        currentPos.set(id, { x: state.x, y: state.y, angle: state.angle });
+      });
+
+      // Start the Farewell Finale Choreography!
+      this.finaleController.start(currentPos);
     }, 50.0);
 
-    // ---------------- 14. INTERACTIVE STATE (52.5s) ----------------
-    this.masterTimeline.add(() => {
-      this.setStage('INTERACTIVE');
-    }, 52.5);
-
-    this.masterTimeline.to({}, { duration: 0.5 }, 53.0);
+    // Keep master timeline open so tick loop runs without auto-finalizing prematurely
+    this.masterTimeline.to({}, { duration: 20.0 }, 50.0);
   }
 
   private completeRemainingSectionTasks(sectionId: ConstructionSectionId): void {
@@ -545,7 +597,9 @@ export class AgentOrchestrator {
         this.currentStage === 'AGENTS_ENTERING' ||
         this.currentStage === 'FORMATION_ACTIVE';
 
-      if (!isFormation && this.currentStage !== 'DEPLOYMENT_ACTIVE') {
+      const isFinale = this.isFinaleStage(this.currentStage);
+
+      if (!isFormation && this.currentStage !== 'DEPLOYMENT_ACTIVE' && !isFinale) {
         const agentIds = Array.from(this.agentStates.keys());
         for (let i = 0; i < agentIds.length; i++) {
           for (let j = i + 1; j < agentIds.length; j++) {
@@ -585,13 +639,53 @@ export class AgentOrchestrator {
         }
       }
 
+      // If in Finale Choreography stages, update agent coordinates via FinaleController
+      if (isFinale) {
+        const currentPos = new Map<string, { x: number; y: number; angle: number }>();
+        this.agentStates.forEach((st, id) => {
+          currentPos.set(id, { x: st.x, y: st.y, angle: st.angle });
+        });
+
+        const finaleStates = this.finaleController.tick(
+          now,
+          typeof window !== 'undefined' ? window.scrollY : 0,
+          currentPos
+        );
+
+        finaleStates.forEach((fs) => {
+          const st = this.agentStates.get(fs.id);
+          if (st) {
+            st.x = fs.x;
+            st.y = fs.y;
+            st.angle = fs.angle;
+            st.trail = fs.trail;
+            st.isWorking = false;
+            st.activity =
+              this.currentStage === 'FINAL_RESTING_STATE'
+                ? 'STATION_LOCKED'
+                : 'FAREWELL_CHOREOGRAPHY';
+          }
+        });
+
+        if (this.currentStage === 'FINAL_RESTING_STATE' && !this.isCompleted) {
+          this.isCompleted = true;
+          this.callbacks.onComplete();
+          if (typeof document !== 'undefined') {
+            document.documentElement.classList.remove('is-booting');
+            document.body.classList.remove('construction-active');
+          }
+        }
+      }
+
       const renderedStates: FreestyleAgentState[] = [];
 
       this.agentsData.forEach((agent, idx) => {
         const state = this.agentStates.get(agent.id);
         if (!state) return;
 
-        if (
+        if (isFinale) {
+          // Position and angle already set by finaleController above!
+        } else if (
           this.currentStage === 'BOOTING' ||
           this.currentStage === 'CANVAS_INITIALIZED'
         ) {
@@ -791,21 +885,22 @@ export class AgentOrchestrator {
     return this.masterTimeline ? this.masterTimeline.time() : 0;
   }
 
-  public skip(): void {
-    this.finalize();
+  public isFinaleStage(stage: OrchestratorStage): boolean {
+    return (
+      stage === 'ALL_SECTIONS_COMPLETED' ||
+      stage === 'FINAL_SCROLL_STARTED' ||
+      stage === 'FINAL_SCROLL_COMPLETED' ||
+      stage === 'DANCE_STARTED' ||
+      stage === 'CIRCLE_FORMATION' ||
+      stage === 'CIRCLE_HOLD' ||
+      stage === 'OUTWARD_DEPARTURE' ||
+      stage === 'FINAL_RESTING_STATE'
+    );
   }
 
-  private finalize(): void {
-    if (this.isCompleted) return;
-    this.isCompleted = true;
-
+  public skip(): void {
     if (this.masterTimeline) {
       this.masterTimeline.pause();
-    }
-
-    if (this.animFrameId !== null) {
-      cancelAnimationFrame(this.animFrameId);
-      this.animFrameId = null;
     }
 
     // Kill any active component builder timelines
@@ -818,7 +913,6 @@ export class AgentOrchestrator {
 
     if (typeof document !== 'undefined') {
       document.documentElement.classList.remove('is-booting');
-      document.body.classList.remove('is-booting');
       document.body.classList.remove('construction-active');
 
       const allTargets = document.querySelectorAll<HTMLElement>('[data-build-target]');
@@ -836,16 +930,52 @@ export class AgentOrchestrator {
         span.style.opacity = '1';
         span.style.visibility = 'visible';
       });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
+    // Immediately place agents in their final resting positions
+    const resting = this.finaleController.skipToResting();
+    resting.forEach((r) => {
+      const s = this.agentStates.get(r.id);
+      if (s) {
+        s.x = r.x;
+        s.y = r.y;
+        s.angle = r.angle;
+        s.trail = [];
+        s.isWorking = false;
+        s.mode = 'RESTING';
+        s.activity = 'STATION_LOCKED';
+      }
+    });
+
+    this.setStage('FINAL_RESTING_STATE');
+    this.isCompleted = true;
     this.callbacks.onOverallProgress(100);
-    this.callbacks.onStageChange('INTERACTIVE');
     this.callbacks.onComplete();
+  }
+
+  public restart(): void {
+    if (this.masterTimeline) {
+      this.masterTimeline.kill();
+      this.masterTimeline = null;
+    }
+    for (const state of this.agentStates.values()) {
+      if (state.activeTimeline) {
+        state.activeTimeline.kill();
+        state.activeTimeline = null;
+      }
+    }
+    this.isCompleted = false;
+    this.initAgentStates();
+    this.init();
+    this.play();
   }
 
   public destroy(): void {
     this.isDestroyed = true;
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('resize', this.handleResize);
+    }
     if (this.masterTimeline) {
       this.masterTimeline.kill();
     }
@@ -861,7 +991,6 @@ export class AgentOrchestrator {
     }
     if (typeof document !== 'undefined') {
       document.documentElement.classList.remove('is-booting');
-      document.body.classList.remove('is-booting');
       document.body.classList.remove('construction-active');
 
       const allTargets = document.querySelectorAll<HTMLElement>('[data-build-target]');
